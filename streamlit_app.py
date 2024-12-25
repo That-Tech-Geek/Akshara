@@ -5,8 +5,8 @@ from email.mime.text import MIMEText
 from googletrans import Translator
 import google.generativeai as genai
 
-# Configure Google Generative AI
-genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")  # Replace with your actual API key
+# Configure Google Gemini API
+genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")  # Use your Gemini API key here
 
 # Initialize translator
 translator = Translator()
@@ -76,13 +76,14 @@ topic_choice = st.selectbox(translate_text("Choose a topic", selected_lang), top
 
 if st.button(translate_text("Start Lesson", selected_lang)):
     try:
-        # Generate lesson content using Google Generative AI
-        response = genai.TextGenerationModel.create(
+        # Generate lesson content using Google Gemini API
+        response = genai.Completion.create(
+            model="gemini-1.5",  # Replace with the correct Gemini model name
             prompt=f"Create a detailed learning module on {topic_choice} for rural Indian women with low financial literacy.",
             temperature=0.7,  # Control randomness (higher means more random)
-            max_output_tokens=200  # Limit the length of the response
+            max_tokens=200  # Limit the length of the response
         )
-        lesson_content = response['text']
+        lesson_content = response['choices'][0]['text']
     except Exception as e:
         lesson_content = f"Error generating content: {e}"
 
