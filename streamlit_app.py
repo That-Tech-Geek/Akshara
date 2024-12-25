@@ -78,7 +78,7 @@ if st.button(translate_text("Start Lesson", selected_lang)):
     try:
         # Generate lesson content using Google Gemini API
         response = genai.Completion.create(
-            model="gemini-1.5",  # Replace with the correct Gemini model name
+            model="gemini-1.5",  # Correct model name (Gemini 1.5)
             prompt=f"Create a detailed learning module on {topic_choice} for rural Indian women with low financial literacy.",
             temperature=0.7,  # Control randomness (higher means more random)
             max_tokens=200  # Limit the length of the response
