@@ -1,14 +1,12 @@
 import streamlit as st
 from gtts import gTTS
-import os
 import smtplib
 from email.mime.text import MIMEText
 from googletrans import Translator
-from urllib.parse import parse_qs
 import google.generativeai as genai
 
 # Configure Google Generative AI
-genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")
+genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")  # Replace with your actual API key
 
 # Initialize translator
 translator = Translator()
@@ -39,16 +37,13 @@ def translate_text(text, target_lang):
 def speak_text(text, lang="en"):
     translated_text = translate_text(text, lang)
     tts = gTTS(text=translated_text, lang=lang)
+    # Stream the audio directly
     audio_file_path = "audio.mp3"
     tts.save(audio_file_path)
     
     # Play the audio
     with open(audio_file_path, "rb") as audio_file:
         st.audio(audio_file.read())
-    
-    # Cleanup
-    if os.path.exists(audio_file_path):
-        os.remove(audio_file_path)
 
 # Function to send email notification
 def send_email(phone_number, recipient_email, message):
