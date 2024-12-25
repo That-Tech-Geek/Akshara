@@ -77,11 +77,12 @@ topic_choice = st.selectbox(translate_text("Choose a topic", selected_lang), top
 if st.button(translate_text("Start Lesson", selected_lang)):
     try:
         # Generate lesson content using Google Generative AI
-        response = genai.generate(
-            model="text-bison-001",
-            prompt=f"Create a detailed learning module on {topic_choice} for rural Indian women with low financial literacy."
+        response = genai.TextGenerationModel.create(
+            prompt=f"Create a detailed learning module on {topic_choice} for rural Indian women with low financial literacy.",
+            temperature=0.7,  # Control randomness (higher means more random)
+            max_output_tokens=200  # Limit the length of the response
         )
-        lesson_content = response.generations[0].text
+        lesson_content = response['text']
     except Exception as e:
         lesson_content = f"Error generating content: {e}"
 
