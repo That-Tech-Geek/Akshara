@@ -1,13 +1,12 @@
 import streamlit as st
 from gtts import gTTS
-import smtplib
-from email.mime.text import MIMEText
 import requests
 import google.generativeai as genai
 
 DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
 
+# Function to translate text using DeepTranslate API
 def translate_text(text, target_lang):
     if not DEEPTRANSLATE_API_KEY:
         return "Error: API key is not configured."
@@ -38,8 +37,10 @@ def translate_text(text, target_lang):
     except Exception as general_error:
         return f"Unexpected error: {general_error}"
 
+# Configure the Generative AI API
 genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")
 
+# Function to generate text using Generative AI API
 def generate_text(prompt):
     try:
         response = genai.chat(messages=[{"content": prompt}])
@@ -56,29 +57,6 @@ def speak_text(text, lang="en"):
     # Stream the audio directly
     with open(audio_file_path, "rb") as audio_file:
         st.audio(audio_file.read())
-
-# Function to send email notification
-def send_email(phone_number, recipient_email, message):
-    email_address = "your_email@example.com"  # Replace with your email
-    app_password = "your_app_password"       # Replace with your app password
-
-    subject = "New Request"
-    body = f"{message}\nContact Number: {phone_number}"
-
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = email_address
-    msg['To'] = recipient_email
-
-    try:
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(email_address, app_password)
-            server.send_message(msg)
-        return True
-    except Exception as e:
-        st.error(f"Failed to send email: {e}")
-        return False
 
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
@@ -139,31 +117,5 @@ if bank_service == "Apply for Loan":
     
     if st.button(translate_text("Submit Loan Application", selected_lang)):
         loan_details = f"Loan Amount: {loan_amount} INR\nDuration: {loan_duration} months\nPurpose: {loan_purpose}\nContact: {phone_number}"
-        loan_provider_email = "your_email@example.com"  # Replace with the recipient email
-        
-        if send_email(phone_number, loan_provider_email, loan_details):
-            st.success(translate_text("Your loan application has been submitted!", selected_lang))
-            speak_text("Your loan application has been submitted!", selected_lang)
-        else:
-            st.error(translate_text("There was an error sending your loan application.", selected_lang))
-
-# Function to fetch Indian financial news using NewsAPI
-NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"  # Your NewsAPI key
-
-def fetch_indian_financial_news():
-    try:
-        url = "https://newsapi.org/v2/everything"
-        params = {
-            "q": "Indian finance OR India economy OR stock market India OR finance India",
-            "apiKey": NEWSAPI_KEY,
-            "language": "en",
-            "sortBy": "publishedAt",  # Sorting by publication date to get the latest news
-        }
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        news_data = response.json()
-        articles = news_data.get("articles", [])
-        if articles:
-            return articles
-        else:
-            return "No Indian financial news available at the moment.
+        st.success(translate_text("Your loan application has been submitted!", selected_lang))
+        speak_text("Your loan application has been submitted!", selected_lang)
