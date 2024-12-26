@@ -1,6 +1,7 @@
 streamlit
-gTTS
-smtplib
-email
+gtts
 requests
-google-generative-ai
+smtplib
+google-generativeai
+deep-translator
+email-validator
