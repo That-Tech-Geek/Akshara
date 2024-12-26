@@ -4,6 +4,7 @@ import requests
 import google.generativeai as genai
 import speech_recognition as sr
 import json
+from bs4 import BeautifulSoup
 
 DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
@@ -75,14 +76,20 @@ def ask_llama(question):
         # Print raw response for debugging
         print("Raw response:", response.text)
 
-        # Check if the response is JSON
+        # Attempt to parse the response as JSON
         try:
             response_data = response.json()
             return response_data.get("choices", [{}])[0].get("text", "No response received.")
         except json.JSONDecodeError:
-            return f"Error: Expected JSON but received HTML or plain text. Response: {response.text}"
+            # If the response is not JSON, parse it as HTML
+            soup = BeautifulSoup(response.text, "html.parser")
+            parsed_data = {tag.name: tag.text for tag in soup.find_all()}
+            return {
+                "error": "Expected JSON but received HTML.",
+                "parsed_html": parsed_data
+            }
     except requests.exceptions.RequestException as e:
-        return f"Request error: {e}"
+        return {"error": "Request error", "details": str(e)}
 
 # Function to record voice input and convert to text
 def record_voice_input():
