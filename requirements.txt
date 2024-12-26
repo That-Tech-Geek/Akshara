@@ -3,5 +3,4 @@ gTTS
 requests
 google-generativeai
 SpeechRecognition
-pyaudio
-portaudio
+sounddevice
