@@ -2,12 +2,13 @@ import streamlit as st
 from gtts import gTTS
 import requests
 import speech_recognition as sr
+import json
 
 DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
-LLAMA_API_URL = "https://akshara.streamlit.app"
+LLAMA_API_URL = "https://your-llama-api-url"  # Replace with the actual LLAMA API endpoint
 LLAMA_API_KEY = "your-llama-api-key"  # Replace with your LLAMA API key
 
 # Function to translate text using DeepTranslate API
@@ -69,7 +70,15 @@ def ask_llama(question):
     try:
         response = requests.post(LLAMA_API_URL, headers=headers, json=data)
         response.raise_for_status()
+        
+        # Log response for debugging
+        st.write("LLAMA API Response:", response.text)
+
         return response.json().get("choices", [{}])[0].get("text", "No response received.")
+    except requests.exceptions.RequestException as req_err:
+        return f"Request error occurred: {req_err}"
+    except json.JSONDecodeError as json_err:
+        return f"Error decoding JSON: {json_err}"
     except Exception as e:
         return f"Error: {e}"
 
@@ -114,51 +123,6 @@ if news_articles:
 else:
     st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
 
-# Section 1: Financial Literacy 
-st.header(translate_text("📚 Financial Literacy Modules", selected_lang))
-
-topics = ["Budgeting Basics", "Micro Investing", "Loan Essentials", "Emergency Funds"]
-topic_choice = st.selectbox(translate_text("Choose a topic", selected_lang), topics)
-
-# Predefined lesson content for each topic
-lesson_contents = {
-    "Budgeting Basics": "Budgeting Basics: Learn how to create and manage a budget to track your income and expenses effectively.",
-    "Micro Investing": "Micro Investing: Discover how small investments can grow over time and build wealth for the future.",
-    "Loan Essentials": "Loan Essentials: Understand the basics of loans, including interest rates, repayment terms, and responsible borrowing.",
-    "Emergency Funds": "Emergency Funds: Learn the importance of saving for emergencies and how to build an emergency fund step by step."
-}
-
-if st.button(translate_text("Start Lesson", selected_lang)):
-    lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
-    
-    st.write(translate_text(lesson_content, selected_lang))
-
-# Section 2: Goal-Oriented Savings Plans
-st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
-
-savings_goal = st.text_input(translate_text("Enter your savings goal (e.g., Buy a cow, open a shop)", selected_lang))
-duration = st.number_input(translate_text("How many months to save?", selected_lang), min_value=1, max_value=24)
-amount = st.number_input(translate_text("Enter monthly saving amount (INR)", selected_lang), min_value=100)
-
-if st.button(translate_text("Create Savings Plan", selected_lang)):
-    total_savings = duration * amount
-    st.write(translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang))
-    st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
-
-# Section 3: Secure Banking Services
-st.header(translate_text("🏦 Banking Services", selected_lang))
-
-bank_options = ["Apply for Loan", "Track Expenses", "Emergency Fund Guidance"]
-bank_service = st.selectbox(translate_text("Choose a service", selected_lang), bank_options)
-
-if bank_service == "Apply for Loan":
-    loan_amount = st.number_input(translate_text("Enter loan amount (INR)", selected_lang), min_value=1000)
-    loan_duration = st.number_input(translate_text("Loan duration (months)", selected_lang), min_value=1, max_value=60)
-    loan_purpose = st.text_input(translate_text("Purpose of the loan", selected_lang))
-    phone_number = st.text_input(translate_text("Enter your phone number", selected_lang))
-    
-    if st.button(translate_text("Submit Loan Application", selected_lang)):
-        st.success(translate_text("Your loan application has been submitted!", selected_lang))
 # Section: Ask a Question (Text or Voice)
 st.header(translate_text("❓ Ask a Question", selected_lang))
 question_input = st.text_input(translate_text("Type your question here", selected_lang))
