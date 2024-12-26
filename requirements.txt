@@ -2,4 +2,4 @@ streamlit
 gtts
 secure-smtplib
 requests
-speech_recognition
+SpeechRecognition
