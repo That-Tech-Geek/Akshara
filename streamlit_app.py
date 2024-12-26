@@ -23,9 +23,6 @@ def translate_text(text, target_lang):
             "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com"
         }
         response = requests.post(DEEPTRANSLATE_BASE_URL, json=payload, headers=headers)
-        print("Status Code:", response.status_code)  # Debugging
-        print("Response Headers:", response.headers)  # Debugging
-        print("Response Text:", response.text)  # Debugging
         response.raise_for_status()  # Raise HTTPError for bad responses (4xx and 5xx)
         
         translated_text = response.json().get("data", {}).get("translations", {}).get("translatedText")
@@ -49,30 +46,6 @@ def generate_text(prompt):
         return response['messages'][0]['content']
     except Exception as e:
         return f"Error generating content: {e}"
-
-
-# DeepTranslate API configuration
-DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
-
-# Function to use DeepTranslate API for translations
-def translate_text(text, target_lang):
-    if target_lang == "en":
-        return text
-    try:
-        url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
-        payload = {"q": text, "target": target_lang}
-        headers = {
-            "content-type": "application/json",
-            "X-RapidAPI-Key": DEEPTRANSLATE_API_KEY,
-            "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com"
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        translated_text = response.json().get("data", {}).get("translations", {}).get("translatedText", text)
-        return translated_text
-    except Exception as e:
-        st.error(f"Translation failed: {e}")
-        return text
 
 # Function for Text-to-Speech
 def speak_text(text, lang="en"):
@@ -139,7 +112,6 @@ if st.button(translate_text("Start Lesson", selected_lang)):
     st.write(translate_text(lesson_content, selected_lang))
     speak_text(lesson_content, selected_lang)
 
-
 # Section 2: Goal-Oriented Savings Plans
 st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
 
@@ -175,14 +147,9 @@ if bank_service == "Apply for Loan":
         else:
             st.error(translate_text("There was an error sending your loan application.", selected_lang))
 
-# API keys and configurations
-DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
-NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"  # Your NewsAPI key
-LLAMA_API_KEY = "LA-02542d15e16848df91306772181a65b8228bee4b269c478994888abe19a2ff11"  # Llama API key
-SEARCH_ENGINE_ID = "10a125a1f8ed84071"  # Replace with your Search Engine ID
-GOOGLE_SEARCH_API_KEY = "AIzaSyA-SzDdfHqkcHZwSTRXdy2VaVvrescYDUU"  # Replace with your Google Search API key
-
 # Function to fetch Indian financial news using NewsAPI
+NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"  # Your NewsAPI key
+
 def fetch_indian_financial_news():
     try:
         url = "https://newsapi.org/v2/everything"
@@ -199,189 +166,4 @@ def fetch_indian_financial_news():
         if articles:
             return articles
         else:
-            return "No Indian financial news available at the moment."
-    except requests.exceptions.RequestException as e:
-        return f"Error fetching Indian financial news: {e}"
-
-# Function to perform search using Google Custom Search
-import requests
-
-import requests
-
-# Function to perform a search using Google Custom Search API
-def perform_search(query):
-    try:
-        url = "https://www.googleapis.com/customsearch/v1"
-        params = {
-            "q": query,
-            "cx": SEARCH_ENGINE_ID,
-            "key": GOOGLE_SEARCH_API_KEY,
-        }
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        results = response.json().get("items", [])
-        if results:
-            snippet = results[0].get("snippet", "No snippet available.")
-            link = results[0].get("link", "No link available.")
-            return snippet, link
-        else:
-            return None, "No results found."
-    except requests.exceptions.RequestException as e:
-        return None, f"Error during search: {e}"
-
-# Function to summarize content using Llama API
-def summarize_content_with_llama(content):
-    try:
-        url = "https://api.llama.ai/v1/completions"  # Replace with actual Llama API endpoint
-        headers = {
-            "Authorization": f"Bearer {LLAMA_API_KEY}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": "llama-2",
-            "prompt": f"Please summarize the following text:\n{content}\nProvide a brief summary in plain language.",
-            "temperature": 0.7,
-            "max_tokens": 200  # Adjust summary length as needed
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        if response.status_code == 401:
-            return "Error: Unauthorized access. Check your API key or permissions."
-        response.raise_for_status()
-        return response.json().get("choices", [{}])[0].get("text", "No summary available.").strip()
-    except requests.exceptions.RequestException as e:
-        return f"Error summarizing content: {e}"
-
-# Function to translate text using DeepTranslate
-def translate_text(text, target_lang):
-    if target_lang == "en":
-        return text
-    try:
-        url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
-        payload = {"q": text, "target": target_lang, "source": "en"}
-        headers = {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": DEEPTRANSLATE_API_KEY,
-            "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com",
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response.json()["data"]["translations"]["translatedText"]
-    except requests.exceptions.RequestException as e:
-        return f"Translation failed: {e}"
-
-# Function to search, summarize, and translate
-def search_and_explain(query, target_lang):
-    snippet, link = perform_search(query)
-    if not snippet:
-        return f"No results found for {query}.\nError: {link}"
-    
-    summary = summarize_content_with_llama(snippet)
-    if "Error" in summary:
-        return summary
-    
-    translated_summary = translate_text(summary, target_lang)
-    if "Translation failed" in translated_summary:
-        return translated_summary
-    
-    return f"Explanation in {target_lang}:\n{translated_summary}\n\nSource: {link}"
-
-# Function to translate text using DeepTranslate
-def translate_text(text, target_lang):
-    if target_lang == "en":
-        return text
-    try:
-        url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
-        payload = {"q": text, "target": target_lang, "source": "en"}
-        headers = {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": DEEPTRANSLATE_API_KEY,
-            "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com",
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response.json()["data"]["translations"]["translatedText"]
-    except requests.exceptions.RequestException as e:
-        return f"Translation failed: {e}"
-
-# Function to search, summarize, and translate
-def search_and_explain(query, target_lang):
-    snippet, link = perform_search(query)
-    if not snippet:
-        return f"No results found for {query}.\nError: {link}"
-    
-    summary = summarize_content_with_llama(snippet)
-    if "Error" in summary:
-        return summary
-    
-    translated_summary = translate_text(summary, target_lang)
-    if "Translation failed" in translated_summary:
-        return translated_summary
-    
-    return f"Explanation in {target_lang}:\n{translated_summary}\n\nSource: {link}"
-
-
-# Function to translate text using DeepTranslate
-def translate_text(text, target_lang):
-    if target_lang == "en":
-        return text
-    try:
-        url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
-        payload = {"q": text, "target": target_lang, "source": "en"}
-        headers = {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": DEEPTRANSLATE_API_KEY,
-            "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com",
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response.json()["data"]["translations"]["translatedText"]
-    except requests.exceptions.RequestException as e:
-        return f"Translation failed: {e}"
-
-# Function to search, summarize, and translate
-def search_and_explain(query, target_lang):
-    snippet, link = perform_search(query)
-    if not snippet:
-        return f"No results found for {query}.\nError: {link}"
-    
-    summary = summarize_content_with_llama(snippet)
-    if "Error" in summary:
-        return summary
-    
-    translated_summary = translate_text(summary, target_lang)
-    if "Translation failed" in translated_summary:
-        return translated_summary
-    
-    return f"Explanation in {target_lang}:\n{translated_summary}\n\nSource: {link}"
-
-
-# Streamlit app setup
-st.title("Indian Financial News and Knowledge Assistant")
-st.write("Get the latest Indian financial news and insights!")
-
-# Sidebar for Indian Financial News
-st.sidebar.header("Indian Financial News 📰")
-indian_financial_news = fetch_indian_financial_news()
-
-if isinstance(indian_financial_news, list):
-    for article in indian_financial_news[:500]:  # Limit to 500 latest articles
-        st.sidebar.markdown(f"**{article['title']}**")
-        st.sidebar.markdown(f"[Read more]({article['url']})")
-        st.sidebar.markdown("---")
-else:
-    st.sidebar.write(indian_financial_news)
-
-# Language Selection Dropdown
-languages = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": "te", "Marathi": "mr"}
-lang_choice = st.selectbox("Choose Language / भाषा चुनें", list(languages.keys()), key="language_selectbox")
-selected_lang = languages[lang_choice]
-
-# User input for query
-query = st.text_input("Enter your query or topic:", key="query_input")
-
-# Display search results and summary
-if query.strip():
-    result = search_and_explain(query, selected_lang)
-    st.write(result)
-else:
-    st.error("Please enter a query before proceeding!")
+            return "No Indian financial news available at the moment.
