@@ -20,13 +20,18 @@ LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o
 # Selenium Setup
 def setup_selenium():
     options = Options()
-    options.add_argument("--headless")
+    options.add_argument("--headless=new")  # Ensure headless mode for cloud
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    service = Service('/path/to/chromedriver')  # Replace with your ChromeDriver path
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
+    options.binary_location = "/path/to/chrome"  # Replace with Chrome binary path if needed
+    service = Service('/full/path/to/chromedriver')  # Replace with ChromeDriver path
+    try:
+        driver = webdriver.Chrome(service=service, options=options)
+        return driver
+    except Exception as e:
+        st.error(f"Error setting up Selenium: {e}")
+        raise
 
 # Function to query the LLAMA API using Selenium
 def ask_llama_with_selenium(question):
