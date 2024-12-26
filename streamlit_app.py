@@ -42,29 +42,11 @@ def translate_text(text, target_lang):
 # Configure the Generative AI API
 genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")
 
-# Function to generate text using Generative AI API
-def generate_text(prompt):
-    try:
-        response = genai.chat(messages=[{"content": prompt}])
-        return response['messages'][0]['content']
-    except Exception as e:
-        return f"Error generating content: {e}"
-
-# Function for Text-to-Speech
-def speak_text(text, lang="en"):
-    translated_text = translate_text(text, lang)
-    tts = gTTS(text=translated_text, lang=lang)
-    audio_file_path = "audio.mp3"
-    tts.save(audio_file_path)
-    # Stream the audio directly
-    with open(audio_file_path, "rb") as audio_file:
-        st.audio(audio_file.read())
-
 # Function to fetch financial news
 def fetch_financial_news():
     params = {
         "apiKey": NEWSAPI_KEY,
-        "category": "business",
+        "category": "financial policy",
         "language": "en",
         "country": "in"
     }
@@ -95,7 +77,9 @@ if news_articles:
     for article in news_articles[:5]:  # Display top 5 articles
         title = article.get("title", "No Title")
         url = article.get("url", "#")
-        st.sidebar.markdown(f"[**{translate_text(title, selected_lang)}**]({url})")
+        # Translate title before displaying it
+        translated_title = translate_text(title, selected_lang)
+        st.sidebar.markdown(f"[**{translated_title}**]({url})")
 else:
     st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
 
@@ -117,7 +101,6 @@ if st.button(translate_text("Start Lesson", selected_lang)):
     lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
     
     st.write(translate_text(lesson_content, selected_lang))
-    speak_text(lesson_content, selected_lang)
 
 # Section 2: Goal-Oriented Savings Plans
 st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
@@ -130,7 +113,6 @@ if st.button(translate_text("Create Savings Plan", selected_lang)):
     total_savings = duration * amount
     st.write(translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang))
     st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
-    speak_text(f"To achieve your goal of {savings_goal}, save {amount} rupees each month.", selected_lang)
 
 # Section 3: Secure Banking Services
 st.header(translate_text("🏦 Banking Services", selected_lang))
@@ -145,6 +127,4 @@ if bank_service == "Apply for Loan":
     phone_number = st.text_input(translate_text("Enter your phone number", selected_lang))
     
     if st.button(translate_text("Submit Loan Application", selected_lang)):
-        loan_details = f"Loan Amount: {loan_amount} INR\nDuration: {loan_duration} months\nPurpose: {loan_purpose}\nContact: {phone_number}"
         st.success(translate_text("Your loan application has been submitted!", selected_lang))
-        speak_text("Your loan application has been submitted!", selected_lang)
