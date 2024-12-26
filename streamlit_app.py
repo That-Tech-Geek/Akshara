@@ -7,7 +7,7 @@ DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
-LLAMA_API_URL = "https://api.openai.com/v1/completions"
+LLAMA_API_URL = "https://akshara.streamlit.app"
 LLAMA_API_KEY = "your-llama-api-key"  # Replace with your LLAMA API key
 
 # Function to translate text using DeepTranslate API
