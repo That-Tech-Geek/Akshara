@@ -7,6 +7,8 @@ DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
+LLAMA_API_URL = "https://api.openai.com/v1/completions"
+LLAMA_API_KEY = "your-llama-api-key"  # Replace with your LLAMA API key
 
 # Function to translate text using DeepTranslate API
 def translate_text(text, target_lang):
@@ -24,14 +26,11 @@ def translate_text(text, target_lang):
             "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com"
         }
         response = requests.post(DEEPTRANSLATE_BASE_URL, json=payload, headers=headers)
-        response.raise_for_status()  # Raise HTTPError for bad responses (4xx and 5xx)
-        
+        response.raise_for_status()
         translated_text = response.json().get("data", {}).get("translations", {}).get("translatedText")
         if not translated_text:
             return "Error: No translated text returned from the API."
-        
         return translated_text
-    
     except requests.exceptions.RequestException as req_error:
         return f"Request error: {req_error}"
     except ValueError as val_error:
@@ -39,14 +38,11 @@ def translate_text(text, target_lang):
     except Exception as general_error:
         return f"Unexpected error: {general_error}"
 
-# Configure the Generative AI API
-genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")
-
 # Function to fetch financial news
 def fetch_financial_news():
     params = {
         "apiKey": NEWSAPI_KEY,
-        "category": "finance",
+        "category": "business",
         "language": "en",
         "country": "in"
     }
@@ -57,6 +53,41 @@ def fetch_financial_news():
         return news_data.get("articles", [])
     except Exception as e:
         return []
+
+# Function to query the LLAMA API
+def ask_llama(question):
+    headers = {
+        "Authorization": f"Bearer {LLAMA_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "text-davinci-003",
+        "prompt": question,
+        "temperature": 0.7,
+        "max_tokens": 150
+    }
+    try:
+        response = requests.post(LLAMA_API_URL, headers=headers, json=data)
+        response.raise_for_status()
+        return response.json().get("choices", [{}])[0].get("text", "No response received.")
+    except Exception as e:
+        return f"Error: {e}"
+
+# Function to record voice input and convert to text
+def record_voice_input():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        st.info("Listening... Please speak now.")
+        try:
+            audio = recognizer.listen(source, timeout=5)
+            text = recognizer.recognize_google(audio)
+            return text
+        except sr.WaitTimeoutError:
+            return "Timeout: No input detected."
+        except sr.UnknownValueError:
+            return "Error: Could not understand the audio."
+        except Exception as e:
+            return f"Error: {e}"
 
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
@@ -128,3 +159,20 @@ if bank_service == "Apply for Loan":
     
     if st.button(translate_text("Submit Loan Application", selected_lang)):
         st.success(translate_text("Your loan application has been submitted!", selected_lang))
+# Section: Ask a Question (Text or Voice)
+st.header(translate_text("❓ Ask a Question", selected_lang))
+question_input = st.text_input(translate_text("Type your question here", selected_lang))
+
+if st.button(translate_text("Ask", selected_lang)):
+    answer = ask_llama(question_input)
+    st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
+
+st.write(translate_text("Or ask by voice:", selected_lang))
+if st.button(translate_text("Record Voice", selected_lang)):
+    voice_question = record_voice_input()
+    if "Error" not in voice_question:
+        st.write(translate_text(f"You asked: {voice_question}", selected_lang))
+        answer = ask_llama(voice_question)
+        st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
+    else:
+        st.error(translate_text(voice_question, selected_lang))
