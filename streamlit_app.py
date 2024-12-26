@@ -203,10 +203,34 @@ def fetch_indian_financial_news():
     except requests.exceptions.RequestException as e:
         return f"Error fetching Indian financial news: {e}"
 
+# Function to perform search using Google Custom Search
 import requests
 
-# Function to get a direct response from Llama API based on a query
-def query_llama(query):
+import requests
+
+# Function to perform a search using Google Custom Search API
+def perform_search(query):
+    try:
+        url = "https://www.googleapis.com/customsearch/v1"
+        params = {
+            "q": query,
+            "cx": SEARCH_ENGINE_ID,
+            "key": GOOGLE_SEARCH_API_KEY,
+        }
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        results = response.json().get("items", [])
+        if results:
+            snippet = results[0].get("snippet", "No snippet available.")
+            link = results[0].get("link", "No link available.")
+            return snippet, link
+        else:
+            return None, "No results found."
+    except requests.exceptions.RequestException as e:
+        return None, f"Error during search: {e}"
+
+# Function to summarize content using Llama API
+def summarize_content_with_llama(content):
     try:
         url = "https://api.llama.ai/v1/completions"  # Replace with actual Llama API endpoint
         headers = {
@@ -215,47 +239,17 @@ def query_llama(query):
         }
         payload = {
             "model": "llama-2",
-            "prompt": f"Please provide a detailed and concise explanation for the following query:\n{query}",
+            "prompt": f"Please summarize the following text:\n{content}\nProvide a brief summary in plain language.",
             "temperature": 0.7,
-            "max_tokens": 200  # Adjust response length as needed
+            "max_tokens": 200  # Adjust summary length as needed
         }
         response = requests.post(url, json=payload, headers=headers)
         if response.status_code == 401:
             return "Error: Unauthorized access. Check your API key or permissions."
         response.raise_for_status()
-        return response.json().get("choices", [{}])[0].get("text", "No explanation available.").strip()
+        return response.json().get("choices", [{}])[0].get("text", "No summary available.").strip()
     except requests.exceptions.RequestException as e:
-        return f"Error querying Llama API: {e}"
-
-# Function to translate text using DeepTranslate
-def translate_text(text, target_lang):
-    if target_lang == "en":
-        return text
-    try:
-        url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
-        payload = {"q": text, "target": target_lang, "source": "en"}
-        headers = {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": DEEPTRANSLATE_API_KEY,
-            "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com",
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response.json()["data"]["translations"]["translatedText"]
-    except requests.exceptions.RequestException as e:
-        return f"Translation failed: {e}"
-
-# Function to explain and translate directly using Llama API
-def explain_and_translate(query, target_lang):
-    explanation = query_llama(query)
-    if "Error" in explanation:
-        return explanation
-    
-    translated_explanation = translate_text(explanation, target_lang)
-    if "Translation failed" in translated_explanation:
-        return translated_explanation
-    
-    return f"Explanation in {target_lang}:\n{translated_explanation}"
+        return f"Error summarizing content: {e}"
 
 # Function to translate text using DeepTranslate
 def translate_text(text, target_lang):
