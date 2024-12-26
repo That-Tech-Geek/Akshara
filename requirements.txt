@@ -5,3 +5,4 @@ google-generativeai
 SpeechRecognition
 sounddevice
 BeautifulSoup4
+selenium
