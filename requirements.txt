@@ -2,5 +2,4 @@ streamlit
 gtts
 secure-smtplib
 requests
-google.generativeai
-speech_recognition 
+speech_recognition
