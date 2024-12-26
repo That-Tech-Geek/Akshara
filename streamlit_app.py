@@ -62,7 +62,7 @@ def ask_llama(question):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "text-davinci-003",  # Adjust model if necessary
+        "model": "text-davinci-003",  # Make sure this is the correct model for LLAMA
         "prompt": question,
         "temperature": 0.7,
         "max_tokens": 150
@@ -70,6 +70,9 @@ def ask_llama(question):
     try:
         response = requests.post(LLAMA_API_URL, headers=headers, json=data)
         response.raise_for_status()
+
+        # Print raw response for debugging
+        print("Raw response:", response.text)
 
         # Check if the response is JSON
         try:
