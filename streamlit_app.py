@@ -91,8 +91,6 @@ def ask_llama(question):
     except requests.exceptions.RequestException as e:
         return {"error": "Request error", "details": str(e)}
 
-st.write(translate_text(f"Answer: {answer}", selected_lang))
-
 # Function to record voice input and convert to text
 def record_voice_input():
     recognizer = sr.Recognizer()
