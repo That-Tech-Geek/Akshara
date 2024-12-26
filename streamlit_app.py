@@ -3,6 +3,7 @@ from gtts import gTTS
 import requests
 import google.generativeai as genai
 import speech_recognition as sr
+import json
 
 DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
@@ -62,7 +63,7 @@ def ask_llama(question):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "text-davinci-003",
+        "model": "text-davinci-003",  # Make sure this is the correct model for LLAMA
         "prompt": question,
         "temperature": 0.7,
         "max_tokens": 150
@@ -70,9 +71,18 @@ def ask_llama(question):
     try:
         response = requests.post(LLAMA_API_URL, headers=headers, json=data)
         response.raise_for_status()
-        return response.json().get("choices", [{}])[0].get("text", "No response received.")
-    except Exception as e:
-        return f"Error: {e}"
+
+        # Print raw response for debugging
+        print("Raw response:", response.text)
+
+        # Check if the response is JSON
+        try:
+            response_data = response.json()
+            return response_data.get("choices", [{}])[0].get("text", "No response received.")
+        except json.JSONDecodeError:
+            return f"Error: Expected JSON but received HTML or plain text. Response: {response.text}"
+    except requests.exceptions.RequestException as e:
+        return f"Request error: {e}"
 
 # Function to record voice input and convert to text
 def record_voice_input():
