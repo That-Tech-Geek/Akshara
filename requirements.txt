@@ -6,3 +6,4 @@ SpeechRecognition
 sounddevice
 BeautifulSoup4
 selenium
+chromedriver
