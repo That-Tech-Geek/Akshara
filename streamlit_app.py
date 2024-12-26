@@ -46,7 +46,7 @@ genai.configure(api_key="AIzaSyBzP_urPbe1zBnZwgjhSlVl-MWtUQMEqQA")
 def fetch_financial_news():
     params = {
         "apiKey": NEWSAPI_KEY,
-        "category": "financial policy",
+        "category": "finance",
         "language": "en",
         "country": "in"
     }
