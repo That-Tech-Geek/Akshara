@@ -90,10 +90,6 @@ def ask_llama(question):
             }
     except requests.exceptions.RequestException as e:
         return {"error": "Request error", "details": str(e)}
-if answer is not None:
-    answer = str(answer).strip()  # Ensure 'answer' is a string and strip it.
-else:
-    answer = "No answer available."
 
 st.write(translate_text(f"Answer: {answer}", selected_lang))
 
