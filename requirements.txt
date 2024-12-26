@@ -1,6 +1,5 @@
 streamlit
 gtts
 secure-smtplib
-email
 requests
 google.generativeai
