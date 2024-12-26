@@ -4,4 +4,4 @@ requests
 google-generativeai
 SpeechRecognition
 sounddevice
-BeautifulSoup
+BeautifulSoup4
