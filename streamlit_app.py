@@ -183,7 +183,7 @@ question_input = st.text_input(translate_text("Type your question here", selecte
 
 if st.button(translate_text("Ask", selected_lang)):
     answer = ask_llama(question_input)
-    st.write(translate_text(f"Answer: {answer()}", selected_lang))
+    st.write(translate_text(f"Answer: {answer}", selected_lang))
 
 st.write(translate_text("Or ask by voice:", selected_lang))
 if st.button(translate_text("Record Voice", selected_lang)):
