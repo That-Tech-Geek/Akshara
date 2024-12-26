@@ -1,6 +1,6 @@
 streamlit
 gtts
-requests
+requests==2.31.0
 smtplib
 google-generativeai
 deep-translator
