@@ -5,6 +5,8 @@ import google.generativeai as genai
 
 DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
+NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
+NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 
 # Function to translate text using DeepTranslate API
 def translate_text(text, target_lang):
@@ -58,6 +60,22 @@ def speak_text(text, lang="en"):
     with open(audio_file_path, "rb") as audio_file:
         st.audio(audio_file.read())
 
+# Function to fetch financial news
+def fetch_financial_news():
+    params = {
+        "apiKey": NEWSAPI_KEY,
+        "category": "business",
+        "language": "en",
+        "country": "in"
+    }
+    try:
+        response = requests.get(NEWSAPI_URL, params=params)
+        response.raise_for_status()
+        news_data = response.json()
+        return news_data.get("articles", [])
+    except Exception as e:
+        return []
+
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
 st.write("""
@@ -69,6 +87,17 @@ Empowering women with tools for financial literacy, secure banking, and entrepre
 languages = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": "te", "Marathi": "mr"}
 lang_choice = st.sidebar.selectbox("Choose Language / भाषा चुनें", list(languages.keys()))
 selected_lang = languages[lang_choice]
+
+# Sidebar for Financial News
+st.sidebar.header(translate_text("📰 Financial News", selected_lang))
+news_articles = fetch_financial_news()
+if news_articles:
+    for article in news_articles[:5]:  # Display top 5 articles
+        title = article.get("title", "No Title")
+        url = article.get("url", "#")
+        st.sidebar.markdown(f"[**{translate_text(title, selected_lang)}**]({url})")
+else:
+    st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
 
 # Section 1: Financial Literacy 
 st.header(translate_text("📚 Financial Literacy Modules", selected_lang))
