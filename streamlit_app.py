@@ -61,10 +61,11 @@ def fetch_financial_news():
 def ask_llama(question):
     headers = {
         "Authorization": f"Bearer {LLAMA_API_KEY}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     data = {
-        "model": "text-davinci-003",  # Make sure this is the correct model for LLAMA
+        "model": "text-davinci-003",
         "prompt": question,
         "temperature": 0.7,
         "max_tokens": 150
@@ -73,21 +74,18 @@ def ask_llama(question):
         response = requests.post(LLAMA_API_URL, headers=headers, json=data)
         response.raise_for_status()
 
-        # Print raw response for debugging
-        print("Raw response:", response.text)
-
-        # Attempt to parse the response as JSON
         try:
             response_data = response.json()
             return response_data.get("choices", [{}])[0].get("text", "No response received.")
         except json.JSONDecodeError:
-            # If the response is not JSON, parse it as HTML
+            # Parse HTML response for JavaScript error
             soup = BeautifulSoup(response.text, "html.parser")
-            parsed_data = {tag.name: tag.text for tag in soup.find_all()}
-            return {
-                "error": "Expected JSON but received HTML.",
-                "parsed_html": parsed_data
-            }
+            if "You need to enable JavaScript" in soup.text:
+                return {
+                    "error": "API requires JavaScript to render content.",
+                    "suggestion": "Consider using a browser-based method like Selenium."
+                }
+            return {"error": "Unexpected HTML response.", "parsed_html": soup.text}
     except requests.exceptions.RequestException as e:
         return {"error": "Request error", "details": str(e)}
 
