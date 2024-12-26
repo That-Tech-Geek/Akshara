@@ -3,3 +3,4 @@ gtts
 secure-smtplib
 requests
 SpeechRecognition
+PyAudio
