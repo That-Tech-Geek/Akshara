@@ -1,6 +1,6 @@
 streamlit
-gtts
-secure-smtplib
+gTTS
 requests
+google-generativeai
 SpeechRecognition
 pyaudio
