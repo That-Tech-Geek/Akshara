@@ -1,7 +1,7 @@
 import streamlit as st
 from gtts import gTTS
 import requests
-import google.generativeai as genai
+import speech_recognition as sr
 
 DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
