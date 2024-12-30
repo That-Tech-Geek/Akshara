@@ -75,10 +75,13 @@ def record_voice_input():
 
 # Function to play TTS audio
 def play_tts(text, lang):
-    tts = gTTS(text=text, lang=lang)
-    with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
-        tts.save(f"{tmp_file.name}.mp3")
-        return f"{tmp_file.name}.mp3"
+    try:
+        tts = gTTS(text=text, lang=lang)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            tts.save(tmp_file.name)
+            return tmp_file.name
+    except Exception as e:
+        return f"TTS Error: {str(e)}"
         
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
