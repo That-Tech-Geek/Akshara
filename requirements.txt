@@ -4,3 +4,4 @@ requests
 SpeechRecognition
 deep-translator
 gtts
+beautifulsoup4
