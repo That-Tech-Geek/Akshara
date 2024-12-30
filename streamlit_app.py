@@ -52,6 +52,12 @@ def ask_llama(question):
     }
     try:
         response = requests.post(LLAMA_API_URL, headers=headers, json=data)
+        print("Raw response:", response.text)  # Log the raw response text
+
+        # Check if the response is HTML
+        if "html" in response.headers.get("Content-Type", ""):
+            return "Error: Received HTML response. Please check the API endpoint and request format."
+
         response.raise_for_status()  # Raise an error for bad responses
         response_json = response.json()  # Attempt to parse the JSON response
         return response_json.get("choices", [{}])[0].get("text", "No response received.")
