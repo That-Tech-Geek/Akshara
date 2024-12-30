@@ -52,8 +52,15 @@ def ask_llama(question):
     }
     try:
         response = requests.post(LLAMA_API_URL, headers=headers, json=data)
-        response.raise_for_status()
-        return response.json().get("choices", [{}])[0].get("text", "No response received.")
+        response.raise_for_status()  # Raise an error for bad responses
+        response_json = response.json()  # Attempt to parse the JSON response
+        return response_json.get("choices", [{}])[0].get("text", "No response received.")
+    except requests.exceptions.HTTPError as http_err:
+        return f"HTTP error occurred: {http_err}"
+    except requests.exceptions.RequestException as req_err:
+        return f"Request error occurred: {req_err}"
+    except ValueError as json_err:
+        return f"JSON decode error: {json_err}"
     except Exception as e:
         return f"Error: {e}"
 
