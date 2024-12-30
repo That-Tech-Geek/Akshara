@@ -2,41 +2,26 @@ import streamlit as st
 from gtts import gTTS
 import requests
 import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
+from googletrans import Translator  # Import the Translator from googletrans
 
-DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
-DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
+# Initialize the Translator
+translator = Translator()
+
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
 LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o5m0o"  # Replace with your LLAMA API key
 
-# Function to translate text using DeepTranslate API
+# Function to translate text using googletrans
 def translate_text(text, target_lang):
-    if not DEEPTRANSLATE_API_KEY:
-        return "Error: API key is not configured."
-    
     if target_lang == "en":
         return text  # No translation needed for English
 
     try:
-        payload = {"q": text, "target": target_lang, "source": "en"}
-        headers = {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": DEEPTRANSLATE_API_KEY,
-            "X-RapidAPI-Host": "deep-translate1.p.rapidapi.com"
-        }
-        response = requests.post(DEEPTRANSLATE_BASE_URL, json=payload, headers=headers)
-        response.raise_for_status()
-        translated_text = response.json().get("data", {}).get("translations", {}).get("translatedText")
-        if not translated_text:
-            return "Error: No translated text returned from the API."
-        return translated_text
-    except requests.exceptions.RequestException as req_error:
-        return f"Request error: {req_error}"
-    except ValueError as val_error:
-        return f"Value error: {val_error}"
-    except Exception as general_error:
-        return f"Unexpected error: {general_error}"
+        translated = translator.translate(text, dest=target_lang)
+        return translated.text
+    except Exception as e:
+        return f"Translation error: {e}"
 
 # Function to fetch financial news
 def fetch_financial_news():
@@ -97,7 +82,7 @@ Empowering women with tools for financial literacy, secure banking, and entrepre
 """)
 
 # Sidebar for Language Selection
-languages = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": " te", "Marathi": "mr"}
+languages = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": "te", "Marathi": "mr"}
 lang_choice = st.sidebar.selectbox("Choose Language / भाषा चुनें", list(languages.keys()))
 selected_lang = languages[lang_choice]
 
