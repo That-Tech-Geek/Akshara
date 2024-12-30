@@ -3,7 +3,9 @@ from gtts import gTTS
 import requests
 import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
 from deep_translator import GoogleTranslator  # Use deep_translator for translation
+import tempfile
 
+# API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
@@ -71,6 +73,13 @@ def record_voice_input():
         except Exception as e:
             return f"Error: {e}"
 
+# Function to play TTS audio
+def play_tts(text):
+    tts = gTTS(text=text, lang='en')
+    with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+        tts.save(f"{tmp_file.name}.mp3")
+        return f"{tmp_file.name}.mp3"
+
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
 st.write("""
@@ -96,7 +105,7 @@ if news_articles:
 else:
     st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
 
-# Section 1: Financial Literacy 
+# Section  1: Financial Literacy 
 st.header(translate_text("📚 Financial Literacy Modules", selected_lang))
 
 topics = ["Budgeting Basics", "Micro Investing", "Loan Essentials", "Emergency Funds"]
@@ -113,6 +122,8 @@ lesson_contents = {
 if st.button(translate_text("Start Lesson", selected_lang)):
     lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
     st.write(translate_text(lesson_content, selected_lang))
+    audio_file = play_tts(lesson_content)
+    st.audio(audio_file, format='audio/mp3')
 
 # Section 2: Goal-Oriented Savings Plans
 st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
@@ -123,8 +134,11 @@ amount = st.number_input(translate_text("Enter monthly saving amount (INR)", sel
 
 if st.button(translate_text("Create Savings Plan", selected_lang)):
     total_savings = duration * amount
-    st.write(translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang))
+    savings_message = translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang)
+    st.write(savings_message)
     st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
+    audio_file = play_tts(savings_message)
+    st.audio(audio_file, format='audio/mp3')
 
 # Section 3: Secure Banking Services
 st.header(translate_text("🏦 Banking Services", selected_lang))
@@ -134,12 +148,14 @@ bank_service = st.selectbox(translate_text("Choose a service", selected_lang), b
 
 if bank_service == "Apply for Loan":
     loan_amount = st.number_input(translate_text("Enter loan amount (INR)", selected_lang), min_value=1000)
-    loan_duration = st.number_input(translate_text("Loan duration (months)", selected_lang), min_value=1, max_value=60)
+    loan_duration = st.number_input(translate_text(translate_text("Loan duration (months)", selected_lang)), min_value=1, max_value=60)
     loan_purpose = st.text_input(translate_text("Purpose of the loan", selected_lang))
     phone_number = st.text_input(translate_text("Enter your phone number", selected_lang))
     
     if st.button(translate_text("Submit Loan Application", selected_lang)):
         st.success(translate_text("Your loan application has been submitted!", selected_lang))
+        audio_file = play_tts("Your loan application has been submitted!")
+        st.audio(audio_file, format='audio/mp3')
 
 # Section: Ask a Question (Text or Voice)
 st.header(translate_text("❓ Ask a Question", selected_lang))
@@ -148,6 +164,8 @@ question_input = st.text_input(translate_text("Type your question here", selecte
 if st.button(translate_text("Ask", selected_lang)):
     answer = ask_llama(question_input)
     st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
+    audio_file = play_tts(answer.strip())
+    st.audio(audio_file, format='audio/mp3')
 
 st.write(translate_text("Or ask by voice:", selected_lang))
 if st.button(translate_text("Record Voice", selected_lang)):
@@ -156,6 +174,8 @@ if st.button(translate_text("Record Voice", selected_lang)):
         st.write(translate_text(f"You asked: {voice_question}", selected_lang))
         answer = ask_llama(voice_question)
         st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
+        audio_file = play_tts(answer.strip())
+        st.audio(audio_file, format='audio/mp3')
     else:
         st.error(translate_text(voice_question, selected_lang))
 
