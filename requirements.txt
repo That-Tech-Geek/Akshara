@@ -4,4 +4,3 @@ requests
 SpeechRecognition
 deep-translator
 gtts
-tempfile
