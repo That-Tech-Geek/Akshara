@@ -148,7 +148,7 @@ bank_service = st.selectbox(translate_text("Choose a service", selected_lang), b
 
 if bank_service == "Apply for Loan":
     loan_amount = st.number_input(translate_text("Enter loan amount (INR)", selected_lang), min_value=1000)
-    loan_duration = st.number_input(translate_text(translate_text("Loan duration (months)", selected_lang)), min_value=1, max_value=60)
+    loan_duration = st.number_input(translate_text("Loan duration (months)", selected_lang), min_value=1, max_value=60)
     loan_purpose = st.text_input(translate_text("Purpose of the loan", selected_lang))
     phone_number = st.text_input(translate_text("Enter your phone number", selected_lang))
     
