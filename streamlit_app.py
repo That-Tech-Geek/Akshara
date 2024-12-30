@@ -2,26 +2,23 @@ import streamlit as st
 from gtts import gTTS
 import requests
 import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
-from googletrans import Translator  # Import the Translator from googletrans
-
-# Initialize the Translator
-translator = Translator()
+from deep_translator import GoogleTranslator  # Use deep_translator for translation
 
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
-NEWSAPI_URL = "https://newsapi.org/v2/"
+NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
 LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o5m0o"  # Replace with your LLAMA API key
 
-# Function to translate text using googletrans
+# Function to translate text using deep_translator
 def translate_text(text, target_lang):
     if target_lang == "en":
         return text  # No translation needed for English
 
     try:
-        translated = translator.translate(text, dest=target_lang)
-        return translated.text
+        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+        return translated
     except Exception as e:
-        return f"Translation error: {e}"
+        return f"Translation error: {str(e)}"
 
 # Function to fetch financial news
 def fetch_financial_news():
@@ -115,7 +112,6 @@ lesson_contents = {
 
 if st.button(translate_text("Start Lesson", selected_lang)):
     lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
-    
     st.write(translate_text(lesson_content, selected_lang))
 
 # Section 2: Goal-Oriented Savings Plans
@@ -162,3 +158,6 @@ if st.button(translate_text("Record Voice", selected_lang)):
         st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
     else:
         st.error(translate_text(voice_question, selected_lang))
+
+# Footer
+st.write("### Thank you for using Akshara! 🌼")
