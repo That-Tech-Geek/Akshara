@@ -2,7 +2,7 @@ import streamlit as st
 from gtts import gTTS
 import requests
 import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
-from googletrans import Translator  # Import the Translator from googletrans
+from deep_translator import GoogleTranslator
 
 # Initialize the Translator
 translator = Translator()
@@ -18,11 +18,10 @@ def translate_text(text, target_lang):
         return text  # No translation needed for English
 
     try:
-        translated = translator.translate(text, dest=target_lang)
-        return translated.text
+        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+        return translated
     except Exception as e:
-        return f"Translation error: {e}"
-
+        return f"Translation error: {str(e)}"
 # Function to fetch financial news
 def fetch_financial_news():
     params = {
