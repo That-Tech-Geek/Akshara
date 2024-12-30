@@ -1,6 +1,3 @@
 streamlit
 gtts
 requests
-speech_recognition
-bs4
-selenium
