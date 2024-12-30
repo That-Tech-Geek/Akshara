@@ -4,6 +4,7 @@ import requests
 import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
 from deep_translator import GoogleTranslator  # Use deep_translator for translation
 import tempfile
+from bs4 import BeautifulSoup
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
