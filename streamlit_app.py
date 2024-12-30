@@ -79,7 +79,7 @@ def play_tts(text, lang):
     with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
         tts.save(f"{tmp_file.name}.mp3")
         return f"{tmp_file.name}.mp3"
-
+        
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
 st.write("""
