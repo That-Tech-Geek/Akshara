@@ -75,7 +75,7 @@ def record_voice_input():
 
 # Function to play TTS audio
 def play_tts(text):
-    tts = gTTS(text=text, lang='en')
+    tts = gTTS(text=text, lang='en-IN')  # Use 'en-IN' for Indian English
     with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
         tts.save(f"{tmp_file.name}.mp3")
         return f"{tmp_file.name}.mp3"
