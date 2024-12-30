@@ -1,8 +1,6 @@
 streamlit
-gTTS
+gtts
 requests
-google-generativeai
-SpeechRecognition
-sounddevice
-BeautifulSoup4
+speech_recognition
+bs4
 selenium
