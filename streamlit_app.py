@@ -1,14 +1,14 @@
 import streamlit as st
 from gtts import gTTS
 import requests
-import google.generativeai as genai
+import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
 
 DEEPTRANSLATE_API_KEY = "d5c0549879msh215534c0e781043p1ec76ajsn937e4b021336"
 DEEPTRANSLATE_BASE_URL = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
-LLAMA_API_URL = "https://akshara.streamlit.app"
-LLAMA_API_KEY = "your-llama-api-key"  # Replace with your LLAMA API key
+LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
+LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o5m0o"  # Replace with your LLAMA API key
 
 # Function to translate text using DeepTranslate API
 def translate_text(text, target_lang):
@@ -54,14 +54,14 @@ def fetch_financial_news():
     except Exception as e:
         return []
 
-# Function to query the LLAMA API
+# Function to query the LLaMA API
 def ask_llama(question):
     headers = {
         "Authorization": f"Bearer {LLAMA_API_KEY}",
         "Content-Type": "application/json"
     }
     data = {
-        "model": "text-davinci-003",
+        "model": "llama-2",  # Replace with the correct model name if needed
         "prompt": question,
         "temperature": 0.7,
         "max_tokens": 150
@@ -97,7 +97,7 @@ Empowering women with tools for financial literacy, secure banking, and entrepre
 """)
 
 # Sidebar for Language Selection
-languages = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": "te", "Marathi": "mr"}
+languages = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": " te", "Marathi": "mr"}
 lang_choice = st.sidebar.selectbox("Choose Language / भाषा चुनें", list(languages.keys()))
 selected_lang = languages[lang_choice]
 
@@ -159,6 +159,7 @@ if bank_service == "Apply for Loan":
     
     if st.button(translate_text("Submit Loan Application", selected_lang)):
         st.success(translate_text("Your loan application has been submitted!", selected_lang))
+
 # Section: Ask a Question (Text or Voice)
 st.header(translate_text("❓ Ask a Question", selected_lang))
 question_input = st.text_input(translate_text("Type your question here", selected_lang))
