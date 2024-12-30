@@ -1,18 +1,15 @@
 import streamlit as st
 from gtts import gTTS
 import requests
-import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
-from deep_translator import GoogleTranslator
-
-# Initialize the Translator
-translator = Translator()
+import speech_recognition as sr
+from deep_translator import GoogleTranslator  # Use deep_translator for translation
 
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
 LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o5m0o"  # Replace with your LLAMA API key
 
-# Function to translate text using googletrans
+# Function to translate text using deep_translator
 def translate_text(text, target_lang):
     if target_lang == "en":
         return text  # No translation needed for English
@@ -22,6 +19,7 @@ def translate_text(text, target_lang):
         return translated
     except Exception as e:
         return f"Translation error: {str(e)}"
+
 # Function to fetch financial news
 def fetch_financial_news():
     params = {
@@ -96,68 +94,28 @@ if news_articles:
         translated_title = translate_text(title, selected_lang)
         st.sidebar.markdown(f"[**{translated_title}**]({url})")
 else:
-    st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
+    st.sidebar.write(translate_text("No news available at the moment.", selected _lang)) 
 
-# Section 1: Financial Literacy 
-st.header(translate_text("📚 Financial Literacy Modules", selected_lang))
+# Main Content Area
+st.header(translate_text("Ask LLaMA", selected_lang))
+user_question = st.text_input(translate_text("What would you like to ask?", selected_lang))
 
-topics = ["Budgeting Basics", "Micro Investing", "Loan Essentials", "Emergency Funds"]
-topic_choice = st.selectbox(translate_text("Choose a topic", selected_lang), topics)
-
-# Predefined lesson content for each topic
-lesson_contents = {
-    "Budgeting Basics": "Budgeting Basics: Learn how to create and manage a budget to track your income and expenses effectively.",
-    "Micro Investing": "Micro Investing: Discover how small investments can grow over time and build wealth for the future.",
-    "Loan Essentials": "Loan Essentials: Understand the basics of loans, including interest rates, repayment terms, and responsible borrowing.",
-    "Emergency Funds": "Emergency Funds: Learn the importance of saving for emergencies and how to build an emergency fund step by step."
-}
-
-if st.button(translate_text("Start Lesson", selected_lang)):
-    lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
-    
-    st.write(translate_text(lesson_content, selected_lang))
-
-# Section 2: Goal-Oriented Savings Plans
-st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
-
-savings_goal = st.text_input(translate_text("Enter your savings goal (e.g., Buy a cow, open a shop)", selected_lang))
-duration = st.number_input(translate_text("How many months to save?", selected_lang), min_value=1, max_value=24)
-amount = st.number_input(translate_text("Enter monthly saving amount (INR)", selected_lang), min_value=100)
-
-if st.button(translate_text("Create Savings Plan", selected_lang)):
-    total_savings = duration * amount
-    st.write(translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang))
-    st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
-
-# Section 3: Secure Banking Services
-st.header(translate_text("🏦 Banking Services", selected_lang))
-
-bank_options = ["Apply for Loan", "Track Expenses", "Emergency Fund Guidance"]
-bank_service = st.selectbox(translate_text("Choose a service", selected_lang), bank_options)
-
-if bank_service == "Apply for Loan":
-    loan_amount = st.number_input(translate_text("Enter loan amount (INR)", selected_lang), min_value=1000)
-    loan_duration = st.number_input(translate_text("Loan duration (months)", selected_lang), min_value=1, max_value=60)
-    loan_purpose = st.text_input(translate_text("Purpose of the loan", selected_lang))
-    phone_number = st.text_input(translate_text("Enter your phone number", selected_lang))
-    
-    if st.button(translate_text("Submit Loan Application", selected_lang)):
-        st.success(translate_text("Your loan application has been submitted!", selected_lang))
-
-# Section: Ask a Question (Text or Voice)
-st.header(translate_text("❓ Ask a Question", selected_lang))
-question_input = st.text_input(translate_text("Type your question here", selected_lang))
-
-if st.button(translate_text("Ask", selected_lang)):
-    answer = ask_llama(question_input)
-    st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
-
-st.write(translate_text("Or ask by voice:", selected_lang))
-if st.button(translate_text("Record Voice", selected_lang)):
-    voice_question = record_voice_input()
-    if "Error" not in voice_question:
-        st.write(translate_text(f"You asked: {voice_question}", selected_lang))
-        answer = ask_llama(voice_question)
-        st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
+if st.button(translate_text("Submit", selected_lang)):
+    if user_question:
+        response = ask_llama(user_question)
+        st.write(translate_text("LLaMA's Response:", selected_lang))
+        st.write(response)
     else:
-        st.error(translate_text(voice_question, selected_lang))
+        st.warning(translate_text("Please enter a question.", selected_lang))
+
+# Voice Input Option
+if st.button(translate_text("Record Voice Input", selected_lang)):
+    voice_text = record_voice_input()
+    st.write(translate_text("You said:", selected_lang))
+    st.write(voice_text)
+    if voice_text and voice_text != "Error: Could not understand the audio.":
+        response = ask_llama(voice_text)
+        st.write(translate_text("LLaMA's Response:", selected_lang))
+        st.write(response) ```python
+    else:
+        st.warning(translate_text("Please enter a valid voice input.", selected_lang)
