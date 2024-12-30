@@ -1,4 +1,4 @@
 streamlit
 gTTs
 requests
-speech_recognition
+SpeechRecognition
