@@ -1,10 +1,10 @@
 import streamlit as st
 from gtts import gTTS
 import requests
-import speech_recognition as sr  # Make sure to import speech_recognition if you're using voice input
-from deep_translator import GoogleTranslator  # Use deep_translator for translation
+import speech_recognition as sr  # For voice input
+from deep_translator import GoogleTranslator  # For translation
 import tempfile
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # For parsing HTML responses
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
@@ -59,8 +59,10 @@ def ask_llama(question):
 
         # Check if the response is HTML
         if "html" in response.headers.get("Content-Type", ""):
-            # Log the HTML response for debugging
-            return f"Error: Received HTML response. Please check the API endpoint and request format. Raw response: {response.text}"
+            # Parse the HTML response
+            soup = BeautifulSoup(response.text, 'html.parser')
+            error_message = soup.get_text()  # Get all text from the HTML
+            return f"Error: Received HTML response. Details: {error_message}"
 
         response.raise_for_status()  # Raise an error for bad responses
         response_json = response.json()  # Attempt to parse the JSON response
@@ -94,16 +96,16 @@ def record_voice_input():
 def play_tts(text, lang):
     try:
         tts = gTTS(text=text, lang=lang)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+        with tempfile.NamedTemporaryFile(delete=True, suffix=".mp3") as tmp_file:
             tts.save(tmp_file.name)
-            return tmp_file.name
+            st.audio(tmp_file.name)
     except Exception as e:
-        return f"TTS Error: {str(e)}"
+        st.error(f"TTS Error: {str(e)}")
 
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
 st.write("""
-### Welcome to Akshara! 🌸
+### Welcome to Akshara ! 🌸
 Empowering women with tools for financial literacy, secure banking, and entrepreneurship.
 """)
 
@@ -123,7 +125,7 @@ if news_articles:
         translated_title = translate_text(title, selected_lang)
         st.sidebar.markdown(f"[**{translated_title}**]({url})")
 else:
- st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
+    st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
 
 # Section 1: Financial Literacy 
 st.header(translate_text("📚 Financial Literacy Modules", selected_lang))
@@ -183,7 +185,7 @@ question_input = st.text_input(translate_text("Type your question here", selecte
 
 if st.button(translate_text("Ask", selected_lang)):
     answer = ask_llama(question_input)
-    st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
+    st.write(translate_text(f" Answer: {answer.strip()}", selected_lang))
     audio_file = play_tts(answer.strip(), selected_lang)
     st.audio(audio_file, format='audio/mp3')
 
