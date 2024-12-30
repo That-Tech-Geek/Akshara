@@ -8,7 +8,7 @@ from googletrans import Translator  # Import the Translator from googletrans
 translator = Translator()
 
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
-NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
+NEWSAPI_URL = "https://newsapi.org/v2/"
 LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
 LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o5m0o"  # Replace with your LLAMA API key
 
