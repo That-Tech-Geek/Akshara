@@ -73,7 +73,7 @@ def record_voice_input():
         except Exception as e:
             return f"Error: {e}"
 
-# Function to play TTS audio
+# Function to play TTS audio in the target language
 def play_tts(text, lang):
     try:
         tts = gTTS(text=text, lang=lang)
@@ -82,7 +82,7 @@ def play_tts(text, lang):
             return tmp_file.name
     except Exception as e:
         return f"TTS Error: {str(e)}"
-        
+
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
 st.write("""
@@ -106,9 +106,9 @@ if news_articles:
         translated_title = translate_text(title, selected_lang)
         st.sidebar.markdown(f"[**{translated_title}**]({url})")
 else:
-    st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
+ st.sidebar.write(translate_text("No news available at the moment.", selected_lang))
 
-# Section  1: Financial Literacy 
+# Section 1: Financial Literacy 
 st.header(translate_text("📚 Financial Literacy Modules", selected_lang))
 
 topics = ["Budgeting Basics", "Micro Investing", "Loan Essentials", "Emergency Funds"]
@@ -125,7 +125,7 @@ lesson_contents = {
 if st.button(translate_text("Start Lesson", selected_lang)):
     lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
     st.write(translate_text(lesson_content, selected_lang))
-    audio_file = play_tts(lesson_content)
+    audio_file = play_tts(lesson_content, selected_lang)
     st.audio(audio_file, format='audio/mp3')
 
 # Section 2: Goal-Oriented Savings Plans
@@ -140,7 +140,7 @@ if st.button(translate_text("Create Savings Plan", selected_lang)):
     savings_message = translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang)
     st.write(savings_message)
     st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
-    audio_file = play_tts(savings_message)
+    audio_file = play_tts(savings_message, selected_lang)
     st.audio(audio_file, format='audio/mp3')
 
 # Section 3: Secure Banking Services
@@ -157,7 +157,7 @@ if bank_service == "Apply for Loan":
     
     if st.button(translate_text("Submit Loan Application", selected_lang)):
         st.success(translate_text("Your loan application has been submitted!", selected_lang))
-        audio_file = play_tts("Your loan application has been submitted!")
+        audio_file = play_tts("Your loan application has been submitted!", selected_lang)
         st.audio(audio_file, format='audio/mp3')
 
 # Section: Ask a Question (Text or Voice)
@@ -167,7 +167,7 @@ question_input = st.text_input(translate_text("Type your question here", selecte
 if st.button(translate_text("Ask", selected_lang)):
     answer = ask_llama(question_input)
     st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
-    audio_file = play_tts(answer.strip())
+    audio_file = play_tts(answer.strip(), selected_lang)
     st.audio(audio_file, format='audio/mp3')
 
 st.write(translate_text("Or ask by voice:", selected_lang))
@@ -177,7 +177,7 @@ if st.button(translate_text("Record Voice", selected_lang)):
         st.write(translate_text(f"You asked: {voice_question}", selected_lang))
         answer = ask_llama(voice_question)
         st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
-        audio_file = play_tts(answer.strip())
+        audio_file = play_tts(answer.strip(), selected_lang)
         st.audio(audio_file, format='audio/mp3')
     else:
         st.error(translate_text(voice_question, selected_lang))
