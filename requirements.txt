@@ -1,4 +1,4 @@
 streamlit
 gTTs
 requests
-google.generativeai
+speech_recognition
