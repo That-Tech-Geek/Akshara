@@ -40,7 +40,6 @@ def fetch_financial_news():
         return []
 
 # Function to query the LLaMA API
-# Function to query the LLaMA API
 def ask_llama(question):
     headers = {
         "Authorization": f"Bearer {LLAMA_API_KEY}",
@@ -60,11 +59,8 @@ def ask_llama(question):
 
         # Check if the response is HTML
         if "html" in response.headers.get("Content-Type", ""):
-            # Parse the HTML response
-            soup = BeautifulSoup(response.text, 'html.parser')
-            # Extract relevant information (e.g., error message)
-            error_message = soup.get_text()  # Get all text from the HTML
-            return f"Error: Received HTML response. Details: {error_message}"
+            # Log the HTML response for debugging
+            return f"Error: Received HTML response. Please check the API endpoint and request format. Raw response: {response.text}"
 
         response.raise_for_status()  # Raise an error for bad responses
         response_json = response.json()  # Attempt to parse the JSON response
