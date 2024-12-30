@@ -2,3 +2,4 @@ streamlit
 gTTs
 requests
 SpeechRecognition
+googletrans
