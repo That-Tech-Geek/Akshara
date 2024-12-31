@@ -2,7 +2,7 @@ import streamlit as st
 from gtts import gTTS
 import requests
 import speech_recognition as sr  # For voice input
-from deep_translator import GoogleTranslator  # For translation
+from deep_translator import GoogleGoogleTranslator  # For translation
 import tempfile
 from bs4 import BeautifulSoup  # For parsing HTML responses
 
@@ -15,7 +15,7 @@ LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o
 # Function to translate text to the selected language in real-time
 def translate_text(text, target_lang):
     try:
-        translation = translator.translate(text, dest=target_lang)
+        translation = GoogleTranslator.translate(text, dest=target_lang)
         if translation and translation.text:
             return translation.text
         else:
