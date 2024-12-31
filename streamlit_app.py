@@ -9,6 +9,7 @@ import pyaudio
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import json
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
@@ -43,7 +44,6 @@ def fetch_financial_news():
     except Exception as e:
         return []
 
-# Function to query the LLaMA API
 def ask_llama(question):
     headers = {
         "Authorization": f"Bearer {LLAMA_API_KEY}",
@@ -56,21 +56,28 @@ def ask_llama(question):
         "max_tokens": 150
     }
     try:
+        # Make the API request
         response = requests.post(LLAMA_API_URL, headers=headers, json=data)
+        
+        # Log response details for debugging
         print("Response Status Code:", response.status_code)  # Log the status code
         print("Response Headers:", response.headers)  # Log the headers
         print("Raw response:", response.text)  # Log the raw response text
 
-        # Check if the response is HTML
-        if "html" in response.headers.get("Content-Type", ""):
-            # Parse the HTML response
-            soup = BeautifulSoup(response.text, 'html.parser')
-            error_message = soup.get_text()  # Get all text from the HTML
-            return f"Error: Received HTML response. Details: {error_message}"
+        # Ensure response is JSON
+        if "application/json" not in response.headers.get("Content-Type", ""):
+            return f"Error: Received non-JSON response. Details: {response.text}"
 
-        response.raise_for_status()  # Raise an error for bad responses
-        response_json = response.json()  # Attempt to parse the JSON response
-        return response_json.get("choices", [{}])[0].get("text", "No response received.")
+        # Attempt to parse the JSON response
+        response_json = response.json()
+
+        # Check if the response contains the expected data and return it
+        choices = response_json.get("choices", [])
+        if choices:
+            return json.dumps(choices[0].get("text", "No response text found."))
+        else:
+            return "Error: No 'choices' found in the response."
+
     except requests.exceptions.HTTPError as http_err:
         return f"HTTP error occurred: {http_err}"
     except requests.exceptions.RequestException as req_err:
