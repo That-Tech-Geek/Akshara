@@ -80,6 +80,34 @@ def ask_llama(question):
     except Exception as e:
         return f"Error: {e}"
 
+# Email Function
+def send_email(Name, Locality, Loan_Amount, Reason, ph_no, Collateral, Monthly_Income, Occupation):
+    sender_email = "sambit1912@gmail.com"
+    receiver_email = "sambit1912@gmail.com"
+    app_password = "noqx vfqm zrhk sggm"
+    
+    subject = "Loan Application from Akshara"
+    body = f"""
+    You have a new request from {Name}, a/an {Occupation} in {Locality}, seeking to borrow {Loan_Amount} in loans. he has a/an {Collateral} to offer as collateral, and earns {Monthly_Income} per month. He is looking for this loan for {Reason}.
+    Please reach out to him at +91 {} and negotiate the terms of this loan with him.
+    Thanks and Regards
+    """
+    # Set up the MIME structure
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(sender_email, app_password)
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+        return "Email sent successfully!"
+    except Exception as e:
+        return f"Error: {e}"
+
 # Function to record voice input and convert to text
 def record_voice_input():
     recognizer = sr.Recognizer()
@@ -205,81 +233,15 @@ if st.button(translate_text("Create Savings Plan", selected_lang)):
     st.audio(audio_file, format='audio/mp3')
     st.write("For any additional questions, reach out to your network of entrepreneurs!")
 
-# Section 2: Goal-Oriented Savings Plans
-st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
-
-savings_goal_desc = st.text_input(translate_text("Enter your savings goal (e.g., Buy a cow, open a shop)", selected_lang))
-savings_goal_amount = st.number_input(translate_text("Enter the total savings goal amount (INR)", selected_lang), min_value=100)
-duration = st.number_input(translate_text("How many months to save?", selected_lang), min_value=1, max_value=24)
-monthly_savings = st.number_input(translate_text("Enter monthly saving amount (INR)", selected_lang), min_value=100)
-
-def send_email(goal, amount, duration, monthly_savings, shortfall=None, min_required_savings=None):
-    sender_email = "sambit1912@gmail.com"
-    receiver_email = "loanprovider@emailprovider.com"
-    app_password = "noqx vfqm zrhk sggm"
-    
-    subject = "Savings Plan Details"
-    body = f"""
-    Savings Goal: {goal}
-    Total Savings Goal Amount: {amount} INR
-    Duration: {duration} months
-    Monthly Savings: {monthly_savings} INR
-    
-    """
-    if shortfall:
-        body += f"Shortfall: {shortfall} INR\n"
-    if min_required_savings:
-        body += f"Minimum Required Monthly Savings: {min_required_savings} INR\n"
-
-    # Set up the MIME structure
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-
-    # Attach the body to the email
-    msg.attach(MIMEText(body, 'plain'))
-
-    # Send the email
-    try:
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(sender_email, app_password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-        return "Email sent successfully!"
-    except Exception as e:
-        return f"Error: {e}"
-
-if st.button(translate_text("Create Savings Plan", selected_lang)):
-    total_savings = duration * monthly_savings
-    savings_gap = savings_goal_amount - total_savings
-
-    if total_savings >= savings_goal_amount:
-        # Goal achievable with current plan
-        savings_message = translate_text(
-            f"To achieve your goal of '{savings_goal_desc}' in {duration} months, your current plan of saving {monthly_savings} INR per month is sufficient.",
-            selected_lang
-        )
-        email_status = send_email(savings_goal_desc, savings_goal_amount, duration, monthly_savings)
-    else:
-        # Goal not achievable, calculate the minimum required monthly savings
-        min_required_savings = round(savings_goal_amount / duration, 2)
-        savings_message = translate_text(
-            f"To achieve your goal of '{savings_goal_desc}' in {duration} months, you need to save {savings_goal_amount} INR in total. "
-            f"Your current plan of saving {monthly_savings} INR per month will only result in {total_savings} INR, leaving a gap of {savings_gap} INR.",
-            selected_lang
-        )
-        savings_message += translate_text(
-            f"\n\nTo meet your goal, you need to save at least {min_required_savings} INR per month.", selected_lang
-        )
-
-        email_status = send_email(savings_goal_desc, savings_goal_amount, duration, monthly_savings, shortfall=savings_gap, min_required_savings=min_required_savings)
-
-    st.write(savings_message)
-    st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
-    st.write(email_status)
-    audio_file = play_tts(savings_message, selected_lang)
-    st.audio(audio_file, format='audio/mp3')
+st.header(translate_text("EasyLoan Application"))
+Name = st.text_input(translate_text("Enter name of borrower"))
+Locality = st.text_input(translate_text("Enter place of residence in 'locality, city' format (Example: Hisar, Haryana or Ashok Vihar, Delhi)"))
+Loan_Amount = st.text_input(translate_text("Enter amount to borrow"))
+Reason = st.text_input(translate_text("Enter reason/cause for borrowing of loan"))
+Occupation = st.text_input(translate_text("Enter your Occupation"))
+Collateral = st.text_input(translate_text("Enter any collateral you may have as a security against the loan"))
+Monthly_Income = st.text_input(translate_text("Enter monthly income"))
+ph_no = st.text_input(translate_text("Enter Phone Number"))
 
 # Section: Ask a Question (Text or Voice)
 st.header(translate_text("Ask Akshara", selected_lang))
