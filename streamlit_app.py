@@ -12,6 +12,7 @@ from email.mime.multipart import MIMEMultipart
 import json
 from langchain.llms import Cohere
 from langchain.chains import LLMChain
+import cohere
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
@@ -46,11 +47,17 @@ def fetch_financial_news():
     except Exception as e:
         return []
 
-# Define the function using Langchain with Cohere
+# Set up your Cohere API key
+COHERE_API_KEY = "WQr8zIfWIlVTjOz5yZNMcum8XTuH1ERs62OiZDkz"
+
+# Define the function to use Cohere with Langchain
 def ask_cohere(question):
     try:
-        # Set up the Cohere LLM wrapper using Langchain
-        llm = Cohere(api_key="WQr8zIfWIlVTjOz5yZNMcum8XTuH1ERs62OiZDkz", temperature=0.7)  # Adjust temperature for creativity level
+        # Initialize Cohere client with the provided API key
+        cohere_client = cohere.Client(COHERE_API_KEY)
+
+        # Use Langchain's Cohere wrapper
+        llm = Cohere(cohere_client, temperature=0.7)
 
         # Create an LLMChain to interact with the model
         chain = LLMChain(llm=llm)
