@@ -34,7 +34,7 @@ def translate_text(text, target_lang):
 def fetch_financial_news():
     params = {
         "apiKey": NEWSAPI_KEY,
-        "category": "Indian Govenment", "Finance", "Government Schemes",
+        "category": "Government Schemes", "Loans"
         "language": "en",
         "country": "in"
     }
