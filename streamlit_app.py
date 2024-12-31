@@ -159,17 +159,48 @@ if st.button(translate_text("Start Lesson", selected_lang)):
 # Section 2: Goal-Oriented Savings Plans
 st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
 
-savings_goal = st.text_input(translate_text("Enter your savings goal (e.g., Buy a cow, open a shop)", selected_lang))
+savings_goal_desc = st.text_input(translate_text("Enter your savings goal (e.g., Buy a cow, open a shop)", selected_lang))
+savings_goal_amount = st.number_input(translate_text("Enter the total savings goal amount (INR)", selected_lang), min_value=100)
 duration = st.number_input(translate_text("How many months to save?", selected_lang), min_value=1, max_value=24)
-amount = st.number_input(translate_text("Enter monthly saving amount (INR)", selected_lang), min_value=100)
+monthly_savings = st.number_input(translate_text("Enter monthly saving amount (INR)", selected_lang), min_value=100)
 
 if st.button(translate_text("Create Savings Plan", selected_lang)):
-    total_savings = duration * amount
-    savings_message = translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang)
+    total_savings = duration * monthly_savings
+    savings_gap = savings_goal_amount - total_savings
+
+    if total_savings >= savings_goal_amount:
+        # Goal achievable with current plan
+        savings_message = translate_text(
+            f"To achieve your goal of '{savings_goal_desc}' in {duration} months, your current plan of saving {monthly_savings} INR per month is sufficient.",
+            selected_lang
+        )
+    else:
+        # Goal not achievable, calculate the minimum required monthly savings
+        min_required_savings = round(savings_goal_amount / duration, 2)
+        savings_message = translate_text(
+            f"To achieve your goal of '{savings_goal_desc}' in {duration} months, you need to save {savings_goal_amount} INR in total. "
+            f"Your current plan of saving {monthly_savings} INR per month will only result in {total_savings} INR, leaving a gap of {savings_gap} INR.",
+            selected_lang
+        )
+        savings_message += translate_text(
+            f"\n\nTo meet your goal, you need to save at least {min_required_savings} INR per month.", selected_lang
+        )
+
+        # Provide actionable suggestions
+        suggestions = translate_text(
+            f"Consider these options to reach your goal:\n"
+            f"1. Increase your monthly savings to {min_required_savings} INR.\n"
+            f"2. Extend your savings duration if possible.\n"
+            f"3. Explore additional income sources or reduce expenses to save more.",
+            selected_lang
+        )
+        savings_message += f"\n\n{suggestions}"
+
     st.write(savings_message)
     st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
     audio_file = play_tts(savings_message, selected_lang)
     st.audio(audio_file, format='audio/mp3')
+    st.write("For any additional questions, reach out to your network of entrepreneurs!")
 
 # Section 3: Secure Banking Services
 st.header(translate_text("🏦 Banking Services", selected_lang))
