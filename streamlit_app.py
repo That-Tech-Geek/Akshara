@@ -2,7 +2,7 @@ import streamlit as st
 from gtts import gTTS
 import requests
 import speech_recognition as sr  # For voice input
-from deep_translator import GoogleGoogleTranslator  # For translation
+from deep_translator import GoogleTranslator  # For translation
 import tempfile
 from bs4 import BeautifulSoup  # For parsing HTML responses
 
