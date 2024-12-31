@@ -8,3 +8,4 @@ beautifulsoup4
 googletrans
 pyaudio
 langchain
+pydantic
