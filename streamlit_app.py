@@ -88,9 +88,14 @@ def send_email(Name, Locality, Loan_Amount, Reason, ph_no, Collateral, Monthly_I
     
     subject = "Loan Application from Akshara"
     body = f"""
-    You have a new request from {Name}, a/an {Occupation} in {Locality}, seeking to borrow {Loan_Amount} in loans. he has a/an {Collateral} to offer as collateral, and earns {Monthly_Income} per month. He is looking for this loan for {Reason}.
-    Please reach out to him at +91 {} and negotiate the terms of this loan with him.
-    Thanks and Regards"""
+    You have a new request from {Name}, a/an {Occupation} in {Locality}, seeking to borrow {Loan_Amount} in loans. 
+    They have a/an {Collateral} to offer as collateral and earn {Monthly_Income} per month. 
+    They are looking for this loan for the following reason: {Reason}.
+    Please reach out to them at +91 {Phone_Number} and negotiate the terms of this loan with them.
+    
+    Thanks and Regards,
+    """
+
     
     # Set up the MIME structure
     msg = MIMEMultipart()
