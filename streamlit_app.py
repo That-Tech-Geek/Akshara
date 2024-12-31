@@ -53,11 +53,8 @@ COHERE_API_KEY = "WQr8zIfWIlVTjOz5yZNMcum8XTuH1ERs62OiZDkz"
 # Define the function to use Cohere with Langchain
 def ask_cohere(question):
     try:
-        # Initialize Cohere client with the provided API key
-        cohere_client = cohere.Client(COHERE_API_KEY)
-
-        # Use Langchain's Cohere wrapper
-        llm = Cohere(cohere_client, temperature=0.7)
+        # Initialize the Cohere model using the API key directly
+        llm = Cohere(cohere_api_key=COHERE_API_KEY, temperature=0.7)
 
         # Create an LLMChain to interact with the model
         chain = LLMChain(llm=llm)
