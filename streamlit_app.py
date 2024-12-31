@@ -10,6 +10,8 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
+from langchain.llms import OpenAI
+from langchain.chains import LLMChain
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
@@ -44,46 +46,21 @@ def fetch_financial_news():
     except Exception as e:
         return []
 
-def ask_llama(question):
-    headers = {
-        "Authorization": f"Bearer {LLAMA_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "llama-2",  # Replace with the correct model name if needed
-        "prompt": question,
-        "temperature": 0.7,
-        "max_tokens": 150
-    }
+# Define the function using Langchain with Cohere
+def ask_cohere(question):
     try:
-        # Make the API request
-        response = requests.post(LLAMA_API_URL, headers=headers, json=data)
-        
-        # Log response details for debugging
-        print("Response Status Code:", response.status_code)  # Log the status code
-        print("Response Headers:", response.headers)  # Log the headers
-        print("Raw response:", response.text)  # Log the raw response text
+        # Set up the Cohere LLM wrapper using Langchain
+        llm = Cohere(api_key="WQr8zIfWIlVTjOz5yZNMcum8XTuH1ERs62OiZDkz", temperature=0.7)  # Adjust temperature for creativity level
 
-        # Ensure response is JSON
-        if "application/json" not in response.headers.get("Content-Type", ""):
-            return f"Error: Received non-JSON response. Details: {response.text}"
+        # Create an LLMChain to interact with the model
+        chain = LLMChain(llm=llm)
 
-        # Attempt to parse the JSON response
-        response_json = response.json()
+        # Ask the question and get the response
+        response = chain.run(question)
 
-        # Check if the response contains the expected data and return it
-        choices = response_json.get("choices", [])
-        if choices:
-            return json.dumps(choices[0].get("text", "No response text found."))
-        else:
-            return "Error: No 'choices' found in the response."
+        # Return the result
+        return response
 
-    except requests.exceptions.HTTPError as http_err:
-        return f"HTTP error occurred: {http_err}"
-    except requests.exceptions.RequestException as req_err:
-        return f"Request error occurred: {req_err}"
-    except ValueError as json_err:
-        return f"JSON decode error: {json_err}"
     except Exception as e:
         return f"Error: {e}"
 
@@ -257,7 +234,7 @@ st.header(translate_text("Ask Akshara", selected_lang))
 question_input = st.text_input(translate_text("Type your question here", selected_lang))
 
 if st.button(translate_text("Ask", selected_lang)):
-    answer = ask_llama(question_input)
+    answer = ask_cohere(question_input)
     st.write(translate_text(f" Answer: {answer.strip()}", selected_lang))
     audio_file = play_tts(answer.strip(), selected_lang)
     st.audio(audio_file, format='audio/mp3')
@@ -267,7 +244,7 @@ if st.button(translate_text("Record Voice", selected_lang)):
     voice_question = record_voice_input()
     if "Error" not in voice_question:
         st.write(translate_text(f"You asked: {voice_question}", selected_lang))
-        answer = ask_llama(voice_question)
+        answer = ask_cohere(voice_question)
         st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
         audio_file = play_tts(answer.strip(), selected_lang)
         st.audio(audio_file, format='audio/mp3')
