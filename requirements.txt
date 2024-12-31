@@ -5,4 +5,3 @@ SpeechRecognition
 deep-translator
 gtts
 beautifulsoup4
-PyAudio
