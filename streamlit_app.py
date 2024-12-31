@@ -144,8 +144,9 @@ lesson_contents = {
 
 if st.button(translate_text("Start Lesson", selected_lang)):
     lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
-    st.write(translate_text(lesson_content, selected_lang))
-    audio_file = play_tts(lesson_content, selected_lang)
+    translated_lesson_content = translate_text(lesson_content, selected_lang)  # Translate lesson content
+    st.write(translated_lesson_content)
+    audio_file = play_tts(translated_lesson_content, selected_lang)  # Pass translated content to TTS
     st.audio(audio_file, format='audio/mp3')
 
 # Section 2: Goal-Oriented Savings Plans
