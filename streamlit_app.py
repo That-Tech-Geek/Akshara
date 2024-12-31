@@ -81,37 +81,22 @@ def ask_llama(question):
         return f"Error: {e}"
 
 # Email Function
-def send_email(Name, Locality, Loan_Amount, Reason, ph_no, Collateral, Monthly_Income, Occupation):
-    sender_email = "sambit1912@gmail.com"
-    receiver_email = "sambit1912@gmail.com"
-    app_password = "noqx vfqm zrhk sggm"
-    
-    subject = "Loan Application from Akshara"
-    body = f"""
-    You have a new request from {Name}, a/an {Occupation} in {Locality}, seeking to borrow {Loan_Amount} in loans. 
-    They have a/an {Collateral} to offer as collateral and earn {Monthly_Income} per month. 
-    They are looking for this loan for the following reason: {Reason}.
-    Please reach out to them at +91 {Phone_Number} and negotiate the terms of this loan with them.
-    
-    Thanks and Regards,
-    """
-
-    
-    # Set up the MIME structure
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
+sender_email = "sambit1912@gmail.com"
+receiver_email = "sambit1912@gmail.com"
+app_password = ""
+# Define the send_email function
+def send_email(receiver_email, subject, body):
+    # Setup the server and send the email (example using Gmail)
+    sender_email = "sambit1912@gmail.com"  # Replace with your email
+    password = "noqx vfqm zrhk sggm"  # Replace with your email password or app password
     try:
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(sender_email, app_password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-        return "Email sent successfully!"
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, password)
+            message = f"Subject: {subject}\n\n{body}"
+            server.sendmail(sender_email, receiver_email, message)
+        print("Email sent successfully!")
     except Exception as e:
-        return f"Error: {e}"
+        print(f"Failed to send email: {e}")
 
 # Function to record voice input and convert to text
 def record_voice_input():
@@ -247,6 +232,18 @@ Occupation = st.text_input(translate_text("Enter your Occupation", selected_lang
 Collateral = st.text_input(translate_text("Enter any collateral you may have as a security against the loan", selected_lang))
 Monthly_Income = st.text_input(translate_text("Enter monthly income", selected_lang))
 ph_no = st.text_input(translate_text("Enter Phone Number", selected_lang))
+
+# Trigger the email when the button is pressed
+if st.button(translate_text("Submit Details", selected_lang)):
+    # Prepare the email details
+    subject = "Loan Application Details"
+    body = f"Name: {Name}\nLocality: {Locality}\nLoan Amount: {Loan_Amount}\nReason: {Reason}\n" \
+           f"Occupation: {Occupation}\nCollateral: {Collateral}\nMonthly Income: {Monthly_Income}\nPhone Number: {ph_no}"
+    receiver_email = "recipient@example.com"  # Replace with actual recipient email
+
+    # Call send_email function to send the details
+    send_email(receiver_email, subject, body)
+    st.success(translate_text("Your loan application details have been sent!", selected_lang))
 
 # Section: Ask a Question (Text or Voice)
 st.header(translate_text("Ask Akshara", selected_lang))
