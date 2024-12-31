@@ -34,7 +34,7 @@ def translate_text(text, target_lang):
 def fetch_financial_news():
     params = {
         "apiKey": NEWSAPI_KEY,
-        "category": "Government Schemes", "Loans"
+        "category": "business",  # Replace "business" with a valid category supported by the API
         "language": "en",
         "country": "in"
     }
@@ -44,6 +44,7 @@ def fetch_financial_news():
         news_data = response.json()
         return news_data.get("articles", [])
     except Exception as e:
+        print(f"Error fetching financial news: {e}")  # Log the error for debugging
         return []
 
 # Set up your Cohere API key
