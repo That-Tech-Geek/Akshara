@@ -56,11 +56,14 @@ def ask_cohere(question):
         # Initialize the Cohere model using the API key directly
         llm = Cohere(cohere_api_key=COHERE_API_KEY, temperature=0.7)
 
-        # Create an LLMChain to interact with the model
-        chain = LLMChain(llm=llm)
+        # Create a prompt template. This can be expanded or customized as needed.
+        prompt_template = PromptTemplate(input_variables=["question"], template="{question}")
+
+        # Create an LLMChain with the prompt template and Cohere model
+        chain = LLMChain(llm=llm, prompt=prompt_template)
 
         # Ask the question and get the response
-        response = chain.run(question)
+        response = chain.run({"question": question})
 
         # Return the result
         return response
