@@ -5,6 +5,7 @@ import speech_recognition as sr  # For voice input
 from deep_translator import GoogleTranslator  # For translation
 import tempfile
 from bs4 import BeautifulSoup  # For parsing HTML responses
+import pyaudio
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
