@@ -13,16 +13,20 @@ NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
 LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o5m0o"  # Replace with your LLAMA API key
 
-# Function to translate text using deep_translator
-def translate_text(text, target_lang):
-    if target_lang == "en":
-        return text  # No translation needed for English
+# Initialize translator
+translator = Translator()
 
+# Function to translate text to the selected language in real-time
+def translate_text(text, target_lang):
     try:
-        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
-        return translated
+        translation = translator.translate(text, dest=target_lang)
+        if translation and translation.text:
+            return translation.text
+        else:
+            raise ValueError("Translation API returned an empty response.")
     except Exception as e:
-        return f"Translation error: {str(e)}"
+        st.error(f"Translation Error: {str(e)}")
+        return text  # Fallback to original text
 
 # Function to fetch financial news
 def fetch_financial_news():
@@ -92,18 +96,6 @@ def record_voice_input():
             return "Error: Could not understand the audio."
         except Exception as e:
             return f"Error: {e}"
-
-# Initialize translator
-translator = Translator()
-
-# Function to translate text to the selected language in real-time
-def translate_text(text, target_lang):
-    try:
-        translation = translator.translate(text, dest=target_lang)
-        return translation.text
-    except Exception as e:
-        st.error(f"Translation Error: {str(e)}")
-        return text
 
 # Function to play TTS audio in the target language
 def play_tts(text, lang):
