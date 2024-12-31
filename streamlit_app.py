@@ -13,6 +13,7 @@ import json
 from langchain.llms import Cohere
 from langchain.chains import LLMChain
 import cohere
+from langchain.prompts import PromptTemplate
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
