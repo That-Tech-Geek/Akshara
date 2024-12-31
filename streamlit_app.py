@@ -83,7 +83,7 @@ def ask_llama(question):
 # Email Function
 sender_email = "sambit1912@gmail.com"
 receiver_email = "sambit1912@gmail.com"
-app_password = ""
+app_password = "noqx vfqm zrhk sggm"
 # Define the send_email function
 def send_email(receiver_email, subject, body):
     # Setup the server and send the email (example using Gmail)
