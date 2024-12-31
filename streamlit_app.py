@@ -111,7 +111,7 @@ Empowering women with tools for financial literacy, secure banking, and entrepre
 """)
 
 # Sidebar for Language Selection
-languages = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": "te", "Marathi": "mr"}
+languages = {"English": "en", "Hindi": "hi", "Bengali": "bn", "Telugu": "te", "Marathi": "mr", "Tamil": "ta", "Urdu": "ur", "Gujarati": "gu", "Malayalam": "ml", "Kannada": "kn", "Odia": "or", "Punjabi": "pa", "Assamese": "as", "Maithili": "mai", "Sanskrit": "sa", "Konkani": "kok", "Sindhi": "sd", "Dogri": "doi", "Bodo": "bo", "Manipuri": "mni", "Nepali": "ne", "Santali": "sat", "Kashmiri": "ks", "Maithili": "mai", "Tulu": "tcy", "Khasi": "kha", "Mizo": "lus", "Bengali (Bangla)": "bn", "Gurmukhi": "guru", "Assamese (Asamiya)": "as"}
 lang_choice = st.sidebar.selectbox("Choose Language / भाषा चुनें", list(languages.keys()))
 selected_lang = languages[lang_choice]
 
