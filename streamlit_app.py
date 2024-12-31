@@ -6,6 +6,9 @@ from deep_translator import GoogleTranslator  # For translation
 import tempfile
 from bs4 import BeautifulSoup  # For parsing HTML responses
 import pyaudio
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # API Keys and URLs
 NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
