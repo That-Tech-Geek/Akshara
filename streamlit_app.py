@@ -12,17 +12,16 @@ NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 LLAMA_API_URL = "https://akshara.streamlit.app"  # Replace with your actual LLaMA API endpoint
 LLAMA_API_KEY = "LL-ATLBeF16yEleBb6RmOf9g4uGeN4GOUAqbJXY1RuKpSC4x62ABkeigtFVo01o5m0o"  # Replace with your LLAMA API key
 
-# Function to translate text to the selected language in real-time
+# Function to translate text using deep_translator
 def translate_text(text, target_lang):
+    if target_lang == "en":
+        return text  # No translation needed for English
+
     try:
-        translation = GoogleTranslator.translate(text, dest=target_lang)
-        if translation and translation.text:
-            return translation.text
-        else:
-            raise ValueError("Translation API returned an empty response.")
+        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+        return translated
     except Exception as e:
-        st.error(f"Translation Error: {str(e)}")
-        return text  # Fallback to original text
+        return f"Translation error: {str(e)}"
 
 # Function to fetch financial news
 def fetch_financial_news():
@@ -94,24 +93,19 @@ def record_voice_input():
             return f"Error: {e}"
 
 # Function to play TTS audio in the target language
-def translate_to_speech(text, target_lang):
+def play_tts(text, lang):
     try:
-        # Create a gTTS object and specify the language
-        tts = gTTS(text=text, lang=target_lang)
-        # Save the speech to a file
-        tts.save("output.mp3")
-        
-        # Provide audio playback in Streamlit
-        st.audio("output.mp3", format="audio/mp3")
-        
+        tts = gTTS(text=text, lang=lang)
+        with tempfile.NamedTemporaryFile(delete=True, suffix=".mp3") as tmp_file:
+            tts.save(tmp_file.name)
+            st.audio(tmp_file.name)
     except Exception as e:
-        st.error(f"Text-to-Speech Error: {str(e)}")
-        return text  # Fallback to original text
+        st.error(f"TTS Error: {str(e)}")
 
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
 st.write("""
-### Welcome to Akshara! 🌸
+### Welcome to Akshara ! 🌸
 Empowering women with tools for financial literacy, secure banking, and entrepreneurship.
 """)
 
@@ -122,11 +116,12 @@ selected_lang = languages[lang_choice]
 
 # Sidebar for Financial News
 st.sidebar.header(translate_text("📰 Financial News", selected_lang))
-news_articles = fetch_financial_news()  # Replace with actual news-fetching function
+news_articles = fetch_financial_news()
 if news_articles:
     for article in news_articles[:5]:  # Display top 5 articles
         title = article.get("title", "No Title")
         url = article.get("url", "#")
+        # Translate title before displaying it
         translated_title = translate_text(title, selected_lang)
         st.sidebar.markdown(f"[**{translated_title}**]({url})")
 else:
@@ -148,11 +143,9 @@ lesson_contents = {
 
 if st.button(translate_text("Start Lesson", selected_lang)):
     lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
-    translated_content = translate_text(lesson_content, selected_lang)
-    st.write(translated_content)
-    audio_file = translate_to_speech(translated_content, selected_lang)
-    if audio_file:
-        st.audio(audio_file, format='audio/mp3')
+    st.write(translate_text(lesson_content, selected_lang))
+    audio_file = play_tts(lesson_content, selected_lang)
+    st.audio(audio_file, format='audio/mp3')
 
 # Section 2: Goal-Oriented Savings Plans
 st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
@@ -166,7 +159,7 @@ if st.button(translate_text("Create Savings Plan", selected_lang)):
     savings_message = translate_text(f"To achieve your goal of '{savings_goal}' in {duration} months, you need to save {amount} INR per month.", selected_lang)
     st.write(savings_message)
     st.write(translate_text(f"Total Savings at the end of {duration} months: {total_savings} INR", selected_lang))
-    audio_file = translate_to_speech(savings_message, selected_lang)
+    audio_file = play_tts(savings_message, selected_lang)
     st.audio(audio_file, format='audio/mp3')
 
 # Section 3: Secure Banking Services
@@ -183,7 +176,7 @@ if bank_service == "Apply for Loan":
     
     if st.button(translate_text("Submit Loan Application", selected_lang)):
         st.success(translate_text("Your loan application has been submitted!", selected_lang))
-        audio_file = translate_to_speech("Your loan application has been submitted!", selected_lang)
+        audio_file = play_tts("Your loan application has been submitted!", selected_lang)
         st.audio(audio_file, format='audio/mp3')
 
 # Section: Ask a Question (Text or Voice)
@@ -193,7 +186,7 @@ question_input = st.text_input(translate_text("Type your question here", selecte
 if st.button(translate_text("Ask", selected_lang)):
     answer = ask_llama(question_input)
     st.write(translate_text(f" Answer: {answer.strip()}", selected_lang))
-    audio_file = translate_to_speech(answer.strip(), selected_lang)
+    audio_file = play_tts(answer.strip(), selected_lang)
     st.audio(audio_file, format='audio/mp3')
 
 st.write(translate_text("Or ask by voice:", selected_lang))
@@ -203,7 +196,7 @@ if st.button(translate_text("Record Voice", selected_lang)):
         st.write(translate_text(f"You asked: {voice_question}", selected_lang))
         answer = ask_llama(voice_question)
         st.write(translate_text(f"Answer: {answer.strip()}", selected_lang))
-        audio_file = translate_to_speech(answer.strip(), selected_lang)
+        audio_file = play_tts(answer.strip(), selected_lang)
         st.audio(audio_file, format='audio/mp3')
     else:
         st.error(translate_text(voice_question, selected_lang))
