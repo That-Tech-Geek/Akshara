@@ -92,20 +92,33 @@ def record_voice_input():
         except Exception as e:
             return f"Error: {e}"
 
+# Initialize translator
+translator = Translator()
+
+# Function to translate text to the selected language in real-time
+def translate_text(text, target_lang):
+    try:
+        translation = translator.translate(text, dest=target_lang)
+        return translation.text
+    except Exception as e:
+        st.error(f"Translation Error: {str(e)}")
+        return text
+
 # Function to play TTS audio in the target language
 def play_tts(text, lang):
     try:
         tts = gTTS(text=text, lang=lang)
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".mp3") as tmp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             tts.save(tmp_file.name)
-            st.audio(tmp_file.name)
+            return tmp_file.name
     except Exception as e:
         st.error(f"TTS Error: {str(e)}")
+        return None
 
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural Women in India")
 st.write("""
-### Welcome to Akshara ! 🌸
+### Welcome to Akshara! 🌸
 Empowering women with tools for financial literacy, secure banking, and entrepreneurship.
 """)
 
@@ -116,12 +129,11 @@ selected_lang = languages[lang_choice]
 
 # Sidebar for Financial News
 st.sidebar.header(translate_text("📰 Financial News", selected_lang))
-news_articles = fetch_financial_news()
+news_articles = fetch_financial_news()  # Replace with actual news-fetching function
 if news_articles:
     for article in news_articles[:5]:  # Display top 5 articles
         title = article.get("title", "No Title")
         url = article.get("url", "#")
-        # Translate title before displaying it
         translated_title = translate_text(title, selected_lang)
         st.sidebar.markdown(f"[**{translated_title}**]({url})")
 else:
@@ -143,9 +155,11 @@ lesson_contents = {
 
 if st.button(translate_text("Start Lesson", selected_lang)):
     lesson_content = lesson_contents.get(topic_choice, "No content available for this topic.")
-    st.write(translate_text(lesson_content, selected_lang))
-    audio_file = play_tts(lesson_content, selected_lang)
-    st.audio(audio_file, format='audio/mp3')
+    translated_content = translate_text(lesson_content, selected_lang)
+    st.write(translated_content)
+    audio_file = play_tts(translated_content, selected_lang)
+    if audio_file:
+        st.audio(audio_file, format='audio/mp3')
 
 # Section 2: Goal-Oriented Savings Plans
 st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
