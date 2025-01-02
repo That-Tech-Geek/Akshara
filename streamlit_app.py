@@ -16,10 +16,10 @@ import cohere
 from langchain.prompts import PromptTemplate
 
 # API Keys and URLs
-NEWSAPI_KEY = st.secrets["api_keys"]["newsapi_key"]
-COHERE_API_KEY = st.secrets["api_keys"]["cohere_api_key"]
-sender_email = st.secrets["general"]["sender_email"]
-app_password = st.secrets["general"]["app_password"]
+NEWSAPI_KEY = st.secrets["newsapi_key"]
+COHERE_API_KEY = st.secrets["cohere_api_key"]
+sender_email = st.secrets["sender_email"]
+app_password = st.secrets["app_password"]
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 
 # Function to translate text using deep_translator
