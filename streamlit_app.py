@@ -16,7 +16,7 @@ import cohere
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
-COHERE_API_KEY = st.secrets["cohere_api_key"]
+cohere_API_KEY = st.secrets["cohere_api_key"]
 sender_email = st.secrets["sender_email"]
 app_password = st.secrets["app_password"]
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
@@ -49,16 +49,16 @@ def fetch_financial_news():
         print(f"Error fetching financial news: {e}")  # Log the error for debugging
         return []
 
-# Define the function to use Cohere with Langchain
+# Define the function to use cohere with Langchain
 def ask_cohere(question):
     try:
-        # Initialize the Cohere model using the API key directly
-        llm = Cohere(cohere_api_key=COHERE_API_KEY, temperature=0.7)
+        # Initialize the cohere model using the API key directly
+        llm = cohere(cohere_api_key=cohere_API_KEY, temperature=0.7)
 
         # Create a prompt template. This can be expanded or customized as needed.
         prompt_template = PromptTemplate(input_variables=["question"], template="{question}")
 
-        # Create an LLMChain with the prompt template and Cohere model
+        # Create an LLMChain with the prompt template and cohere model
         chain = LLMChain(llm=llm, prompt=prompt_template)
 
         # Ask the question and get the response
