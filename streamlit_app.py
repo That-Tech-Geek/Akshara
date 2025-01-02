@@ -16,7 +16,10 @@ import cohere
 from langchain.prompts import PromptTemplate
 
 # API Keys and URLs
-NEWSAPI_KEY = "81f1784ea2074e03a558e94c792af540"
+NEWSAPI_KEY = st.secrets["api_keys"]["newsapi_key"]
+COHERE_API_KEY = st.secrets["api_keys"]["cohere_api_key"]
+sender_email = st.secrets["general"]["sender_email"]
+app_password = st.secrets["general"]["app_password"]
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 
 # Function to translate text using deep_translator
@@ -47,9 +50,6 @@ def fetch_financial_news():
         print(f"Error fetching financial news: {e}")  # Log the error for debugging
         return []
 
-# Set up your Cohere API key
-COHERE_API_KEY = "WQr8zIfWIlVTjOz5yZNMcum8XTuH1ERs62OiZDkz"
-
 # Define the function to use Cohere with Langchain
 def ask_cohere(question):
     try:
@@ -72,9 +72,7 @@ def ask_cohere(question):
         return f"Error: {e}"
 
 # Email Function
-sender_email = "sambit1912@gmail.com"
 receiver_email = "sambit1912@gmail.com"
-app_password = "noqx vfqm zrhk sggm"
 # Define the send_email function
 def send_email(receiver_email, subject, body):
     # Setup the server and send the email (example using Gmail)
