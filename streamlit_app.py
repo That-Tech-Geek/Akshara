@@ -10,9 +10,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
-from langchain import Cohere
+import Cohere
 from langchain.chains import LLMChain
-import cohere
+import Cohere
 from langchain.prompts import PromptTemplate
 
 # API Keys and URLs
