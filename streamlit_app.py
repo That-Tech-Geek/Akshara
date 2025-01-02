@@ -12,8 +12,8 @@ from email.mime.multipart import MIMEMultipart
 import json
 import Cohere
 from langchain.chains import LLMChain
-import cohere
 from langchain.prompts import PromptTemplate
+import cohere
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
