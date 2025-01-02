@@ -10,7 +10,6 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
-import Cohere
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 import cohere
