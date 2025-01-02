@@ -321,10 +321,14 @@ st.header("AI-Powered Risk-Adaptable Insurance (SmartGuard)")
 risk_factors = st.text_area("Enter Risk Factors (comma-separated values)")
 if st.button("Calculate Premium"):
     if risk_factors:
-        factors = np.array([list(map(float, risk_factors.split(",")))]).reshape(1, -1)
-        model = load_risk_model()
-        premium = model.predict(factors)[0]
-        st.success(f"Your calculated premium is ₹{premium:.2f}")
+        try:
+            # Convert the input string to a list of floats
+            factors = np.array([list(map(float, risk_factors.split(",")))])
+            model = load_risk_model()
+            premium = model.predict(factors)[0]
+            st.success(f"Your calculated premium is ₹{premium:.2f}")
+        except ValueError:
+            st.warning("Please enter valid numeric risk factors separated by commas.")
     else:
         st.warning("Please enter valid risk factors.")
 
