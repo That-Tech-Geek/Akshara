@@ -10,13 +10,13 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
+import cohere
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
-import cohere
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
-cohere_API_KEY = st.secrets["cohere_api_key"]
+COHERE_API_KEY = st.secrets["COHERE_API_KEY"]
 sender_email = st.secrets["sender_email"]
 app_password = st.secrets["app_password"]
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
@@ -53,7 +53,7 @@ def fetch_financial_news():
 def ask_cohere(question):
     try:
         # Initialize the cohere model using the API key directly
-        llm = cohere(cohere_api_key=cohere_API_KEY, temperature=0.7)
+        llm = cohere(COHERE_API_KEY=COHERE_API_KEY, temperature=0.7)
 
         # Create a prompt template. This can be expanded or customized as needed.
         prompt_template = PromptTemplate(input_variables=["question"], template="{question}")
