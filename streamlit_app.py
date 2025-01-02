@@ -12,7 +12,7 @@ from email.mime.multipart import MIMEMultipart
 import json
 import Cohere
 from langchain.chains import LLMChain
-import Cohere
+import cohere
 from langchain.prompts import PromptTemplate
 
 # API Keys and URLs
