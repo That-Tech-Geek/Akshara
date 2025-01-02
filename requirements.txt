@@ -13,3 +13,4 @@ cohere
 pandas
 numpy
 scikit-learn
+cohere
