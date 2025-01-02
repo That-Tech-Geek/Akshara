@@ -14,6 +14,11 @@ from langchain.llms import Cohere
 from langchain.chains import LLMChain
 import cohere
 from langchain.prompts import PromptTemplate
+import pandas as pd
+import numpy as np
+import hashlib
+import datetime
+from sklearn.linear_model import LinearRegression
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
@@ -32,6 +37,37 @@ def translate_text(text, target_lang):
         return translated
     except Exception as e:
         return f"Translation error: {str(e)}"
+
+# Load or initialize risk prediction model
+@st.cache_resource
+def load_risk_model():
+    # A simple linear regression model for risk prediction
+    model = LinearRegression()
+    X = np.array([[1, 2], [2, 4], [3, 6]])
+    y = np.array([100, 200, 300])  # Dummy premium values
+    model.fit(X, y)
+    return model
+
+# Initialize blockchain-like structure
+@st.cache_resource
+def initialize_blockchain():
+    return []
+
+blockchain = initialize_blockchain()
+
+def create_block(data, prev_hash="0"):
+    timestamp = str(datetime.datetime.now())
+    block_data = f"{data}|{timestamp}|{prev_hash}"
+    block_hash = hashlib.sha256(block_data.encode()).hexdigest()
+    return {"data": data, "timestamp": timestamp, "prev_hash": prev_hash, "hash": block_hash}
+
+def add_block_to_chain(data):
+    if len(blockchain) > 0:
+        prev_hash = blockchain[-1]["hash"]
+    else:
+        prev_hash = "0"
+    new_block = create_block(data, prev_hash)
+    blockchain.append(new_block)
 
 # Function to fetch financial news
 def fetch_financial_news():
@@ -255,6 +291,58 @@ if st.button(translate_text("Record Voice", selected_lang)):
         st.audio(audio_file, format='audio/mp3')
     else:
         st.error(translate_text(voice_question, selected_lang))
+
+# Blockchain-Powered Community Insurance Pools (BCP)
+st.header("Blockchain-Powered Community Insurance Pools (BCP)")
+pool_name = st.text_input("Enter Insurance Pool Name")
+pool_contribution = st.number_input("Enter Contribution Amount", min_value=0.0, step=1.0)
+if st.button("Create Pool"):
+    add_block_to_chain({"pool_name": pool_name, "contribution": pool_contribution})
+    st.success("Insurance Pool Created!")
+    st.write(blockchain)
+
+# Rural Insurance Hubs (RIH)
+st.header("Rural Insurance Hubs (RIH)")
+st.subheader("Insurance Advisory & Localized Claims Support")
+query = st.text_area("Describe your insurance-related query")
+if st.button("Get Advisory"):
+    st.info("Advisory based on your query will be displayed here.")
+    st.write(f"Advice: For query '{query}', we recommend reviewing affordable rural policies.")
+
+policy_purchase = st.text_input("Enter Policy Name to Purchase")
+policy_amount = st.number_input("Enter Policy Amount", min_value=0.0, step=1.0)
+if st.button("Purchase Policy"):
+    st.success(f"Policy '{policy_purchase}' purchased successfully for ₹{policy_amount}!")
+
+# AI-Powered Risk-Adaptable Insurance (SmartGuard)
+st.header("AI-Powered Risk-Adaptable Insurance (SmartGuard)")
+risk_factors = st.text_area("Enter Risk Factors (comma-separated values)")
+if st.button("Calculate Premium"):
+    if risk_factors:
+        factors = np.array([list(map(float, risk_factors.split(",")))]).reshape(1, -1)
+        model = load_risk_model()
+        premium = model.predict(factors)[0]
+        st.success(f"Your calculated premium is ₹{premium:.2f}")
+    else:
+        st.warning("Please enter valid risk factors.")
+
+# Dynamic Blockchain-Integrated Insurance for Gig & Informal Workers (GigInsure)
+st.header("Dynamic Blockchain-Integrated Insurance for Gig & Informal Workers (GigInsure)")
+work_pattern = st.text_area("Describe your work pattern")
+health_data = st.file_uploader("Upload your health data (CSV)", type="csv")
+if st.button("Generate Premium"):
+    if health_data:
+        health_df = pd.read_csv(health_data)
+        st.write("Uploaded Health Data:", health_df.head())
+        premium = np.random.uniform(500, 1500)  # Simulated premium calculation
+        st.success(f"Your generated premium is ₹{premium:.2f}")
+        add_block_to_chain({"work_pattern": work_pattern, "premium": premium})
+    else:
+        st.warning("Please upload valid health data.")
+
+# Display Blockchain Data
+if st.checkbox("Show Blockchain"):
+    st.write("Blockchain Data:", blockchain)
 
 # Footer
 st.write("### Thank you for using Akshara! 🌼")
