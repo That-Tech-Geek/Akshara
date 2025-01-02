@@ -1,0 +1,45 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: 
+      - main
+      - release/*
+  pull_request:
+    branches: 
+      - main
+  schedule:
+    - cron: "00 1 * * 1"  # Run analysis every Monday at 1:00 AM UTC
+
+jobs:
+  analyze:
+    name: "CodeQL Analyze"
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python', 'javascript' ]  # Add or modify languages here
+
+    steps:
+    - name: "Checkout repository"
+      uses: actions/checkout@v3
+
+    - name: "Initialize CodeQL"
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+        # If you want to specify a custom CodeQL database location:
+        # database-location: /path/to/custom/database
+        # If you have custom queries:
+        # queries: ./path-to-custom-queries
+
+    - name: "Perform CodeQL Analysis"
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{ matrix.language }}"
