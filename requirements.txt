@@ -10,3 +10,6 @@ pyaudio
 langchain
 pydantic==1.10.2
 cohere
+pandas
+numpy
+scikit-learn
