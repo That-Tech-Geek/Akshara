@@ -185,7 +185,7 @@ if st.button(translate_text("Create Savings Plan", selected_lang)):
         )
     else:
         min_required_savings = round(savings_goal_amount / duration, 2)
-        savings_message = translate_text f"To achieve your goal of '{savings_goal_desc}' in {duration} months, you need to save {savings_goal_amount} INR in total. "
+        savings_message = translate_text (f"To achieve your goal of '{savings_goal_desc}' in {duration} months, you need to save {savings_goal_amount} INR in total. "
             f"Your current plan of saving {monthly_savings} INR per month will only result in {total_savings} INR, leaving a gap of {savings_gap} INR.",
             selected_lang
         )
