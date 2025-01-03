@@ -17,10 +17,8 @@ import hashlib
 import datetime
 from transformers import BertTokenizer, BertModel
 import torch
-import numpy as np
-import pandas as pd 
 import pickle
-import streamlit as st
+from sklearn.ensemble import RandomForestRegressor  # Import RandomForestRegressor
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
@@ -316,9 +314,15 @@ if st.button("Generate Premium"):
 if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
 
-def get_prediction(age, sex, bmi, children, smoker, region):
-    # Generate IAM token and retrieve ml_instance_id based on provided documentation
-    header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + "<IAM-Token-goes-here>"}
+import requests
+import json
+
+def get_prediction(age, sex, bmi, children, smoker, region, api_url, iam_token):
+    # Prepare the headers for the API request
+    header = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {iam_token}'  # Use f-string for better readability
+    }
 
     # Prepare the input data
     userInput = [[age, sex, float(bmi), children, smoker, region]]
@@ -332,10 +336,25 @@ def get_prediction(age, sex, bmi, children, smoker, region):
     }
 
     try:
+        # Validate input parameters
+        if not isinstance(age, int) or age < 0:
+            raise ValueError("Age must be a non-negative integer.")
+        if not isinstance(bmi, (int, float)) or bmi <= 0:
+            raise ValueError("BMI must be a positive number.")
+        if not isinstance(children, int) or children < 0:
+            raise ValueError("Number of children must be a non-negative integer.")
+        if sex not in ['Male', 'Female']:
+            raise ValueError("Sex must be 'Male' or 'Female'.")
+        if smoker not in ['Yes', 'No']:
+            raise ValueError("Smoker must be 'Yes' or 'No'.")
+        if region not in ['Northeast', 'Northwest', 'Southeast', 'Southwest', 'North', 'South', 'East', 'West']:
+            raise ValueError("Region must be one of the following: Northeast, Northwest, Southeast, Southwest.")
+
         # Make the API request
         response_scoring = requests.post(
-            "https://us-south.ml.cloud.ibm.com/ml/v4/deployments/<deployment-id-goes-here>/predictions?version=2020-09-01",
-            json=payload_scoring, headers=header
+            f"{api_url}/predictions?version=2020-09-01",
+            json=payload_scoring,
+            headers=header
         )
 
         # Check if the response is successful
@@ -388,11 +407,6 @@ with st.form(key='prediction_form'):
         st.write(f"Predicted Charge: {prediction}")
 
 # Function to load the pre-trained model
-def load_model():
-    with open('random_forest_regressor_model.pkl', 'rb') as file:
-        model = pickle.load(file)
-    return model
-
 # Function to display the prediction page
 def show_predict_page():
     st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
@@ -425,7 +439,7 @@ def show_predict_page():
                 premium = model.predict(X)
 
                 # Display the predicted premium
-                st.subheader(f'Premium: ${premium[0]:.2f}')
+                st.subheader(f'Predicted Premium: ${premium[0]:.2f}')
             except ValueError as e:
                 st.error(f"Error in input values: {e}")
             except Exception as e:
