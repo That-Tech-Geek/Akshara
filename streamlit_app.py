@@ -334,7 +334,6 @@ st.subheader("Insurance Advisory & Localized Claims Support")
 
 # User input for insurance query
 query = st.text_area("Describe your insurance-related query")
-query = st.text_area("Describe your insurance-related query")
 if st.button("Get Advisory"):
     if query:
         try:
