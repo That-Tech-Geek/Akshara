@@ -18,6 +18,9 @@ import numpy as np
 import hashlib
 import datetime
 from sklearn.linear_model import LinearRegression
+import joblib
+from transformers import BertTokenizer, BertModel
+import torch
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
@@ -36,6 +39,28 @@ def translate_text(text, target_lang):
         return translated
     except Exception as e:
         return f"Translation error: {str(e)}"
+
+def load_risk_model(model_name='bert-base-uncased'):
+    """
+    Load a pre-trained BERT model and tokenizer for risk assessment tasks.
+
+    Parameters:
+    model_name (str): The name of the pre-trained BERT model to load.
+
+    Returns:
+    model: The loaded BERT model.
+    tokenizer: The corresponding tokenizer for the model.
+    """
+    # Load the pre-trained BERT tokenizer
+    tokenizer = BertTokenizer.from_pretrained(model_name)
+    
+    # Load the pre-trained BERT model
+    model = BertModel.from_pretrained(model_name)
+    
+    # Set the model to evaluation mode
+    model.eval()
+    
+    return model, tokenizer
 
 # Function to fetch financial news
 def fetch_financial_news():
@@ -303,18 +328,27 @@ if st.button("Create Pool"):
     st.success("Insurance Pool Created!")
     st.write(blockchain)
 
-# Rural Insurance Hubs (RIH)
+# Header for Rural Insurance Hubs
 st.header("Rural Insurance Hubs (RIH)")
 st.subheader("Insurance Advisory & Localized Claims Support")
+
+# User input for insurance query
 query = st.text_area("Describe your insurance-related query")
 if st.button("Get Advisory"):
-    st.info("Advisory based on your query will be displayed here.")
-    st.write(f"Advice: For query '{query}', we recommend reviewing affordable rural policies.")
+    if query:
+        # Here you can implement more complex logic for advisory
+        st.info(f"Advisory based on your query: '{query}' - We recommend reviewing affordable rural policies.")
+    else:
+        st.warning("Please enter a query to get advisory.")
 
+# Policy purchase section
 policy_purchase = st.text_input("Enter Policy Name to Purchase")
 policy_amount = st.number_input("Enter Policy Amount", min_value=0.0, step=1.0)
-if st.button("Purchase Policy"):
-    st.success(f"Policy '{policy_purchase}' purchased successfully for ₹{policy_amount}!")
+if st.button("Request Policy"):
+    if policy_purchase and policy_amount > 0:
+        st.success(f"Policy '{policy_purchase}' purchased successfully for ₹{policy_amount:.2f}!")
+    else:
+        st.warning("Please enter a valid policy name and amount greater than zero.")
 
 # AI-Powered Risk-Adaptable Insurance (SmartGuard)
 st.header("AI-Powered Risk-Adaptable Insurance (SmartGuard)")
