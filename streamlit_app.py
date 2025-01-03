@@ -387,10 +387,6 @@ with st.form(key='prediction_form'):
         prediction = get_prediction(age, sex, bmi, children, smoker, region)
         st.write(f"Predicted Charge: {prediction}")
 
-
-# Set the layout of the Streamlit app
-st.set_page_config(layout="wide")
-
 # Function to load the pre-trained model
 def load_model():
     with open('random_forest_regressor_model.pkl', 'rb') as file:
