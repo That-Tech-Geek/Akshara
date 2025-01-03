@@ -363,7 +363,7 @@ if st.button("Generate Premium"):
 if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
 
-ef get_prediction(age, sex, bmi, children, smoker, region):
+def get_prediction(age, sex, bmi, children, smoker, region):
     # Generate IAM token and retrieve ml_instance_id based on provided documentation
     header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + "<IAM-Token-goes-here>"}
 
