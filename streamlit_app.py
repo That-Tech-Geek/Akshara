@@ -338,7 +338,7 @@ if st.button("Get Advisory"):
     if query:
         try:
             # Generate advisory using Cohere's language model
-            response = cohere.generate(
+            response = COHERE_API_KEY.generate(
                 model='xlarge',  # You can choose the model size based on your needs
                 prompt=f"Provide an insurance advisory based on the following query: '{query}'",
                 max_tokens=1000,  # Adjust the number of tokens as needed
