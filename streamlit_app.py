@@ -21,6 +21,15 @@ from sklearn.linear_model import LinearRegression
 import joblib
 from transformers import BertTokenizer, BertModel
 import torch
+from flask import Flask, url_for, render_template, redirect
+from forms import PredictForm
+from flask import request, sessions
+import requests
+from flask import json
+from flask import jsonify
+from flask import Request
+from flask import Response
+import urllib3
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
@@ -353,6 +362,61 @@ if st.button("Generate Premium"):
 # Display Blockchain Data
 if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
+
+ef get_prediction(age, sex, bmi, children, smoker, region):
+    # Generate IAM token and retrieve ml_instance_id based on provided documentation
+    header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + "<IAM-Token-goes-here>"}
+
+    if bmi is None:
+        python_object = []
+    else:
+        python_object = [age, sex, float(bmi), children, smoker, region]
+
+    userInput = [python_object]
+
+    # Manually define and pass the array(s) of values to be scored
+    payload_scoring = {
+        "input_data": [{
+            "fields": ["age", "sex", "bmi", "children", "smoker", "region"],
+            "values": userInput
+        }]
+    }
+
+    response_scoring = requests.post(
+        "https://us-south.ml.cloud.ibm.com/ml/v4/deployments/<deployment-id-goes-here>/predictions?version=2020-09-01",
+        json=payload_scoring, headers=header
+    )
+
+    output = json.loads(response_scoring.text)
+
+    # Extract and round the charge value from the response
+    for key in output:
+        ab = output[key]
+
+    for key in ab[0]:
+        bc = ab[0][key]
+
+    roundedCharge = round(bc[0][0], 2)
+
+    return roundedCharge
+
+# Streamlit form elements
+st.title("Predictor App")
+
+with st.form(key='prediction_form'):
+    age = st.number_input("Age", min_value=0)
+    sex = st.selectbox("Sex", ["Male", "Female"])
+    bmi = st.number_input("BMI", min_value=0.0)
+    children = st.number_input("Children", min_value=0)
+    smoker = st.selectbox("Smoker", ["Yes", "No"])
+    region = st.selectbox("Region", ["North", "South", "East", "West"])
+    
+    submit_button = st.form_submit_button(label="Submit")
+
+    if submit_button:
+        # Call the prediction function with user inputs
+        prediction = get_prediction(age, sex, bmi, children, smoker, region)
+        st.write(f"Predicted Charge: {prediction}")
 
 # Footer
 st.write("# Thank you for using Akshara!")
