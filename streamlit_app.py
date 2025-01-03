@@ -314,102 +314,47 @@ if st.button("Generate Premium"):
 if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
 
-import requests
-import json
+# Function to train a Random Forest model (if needed)
+def train_model():
+    df = pd.read_csv('insurance.csv')  # Load your dataset here
+    df = pd.DataFrame(data)
 
-def get_prediction(age, sex, bmi, children, smoker, region, api_url, iam_token):
-    # Prepare the headers for the API request
-    header = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {iam_token}'  # Use f-string for better readability
-    }
+    # Preprocess the data (convert categorical variables to numerical)
+    df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
 
+    # Define features and target variable
+    X = df.drop('premium', axis=1)
+    y = df['premium']
+
+    # Train the Random Forest model
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X, y)
+
+    return model
+
+# Function to get predictions from the model
+def get_prediction(age, sex, bmi, children, smoker, region, model):
     # Prepare the input data
-    userInput = [[age, sex, float(bmi), children, smoker, region]]
+    userInput = pd.DataFrame([[age, sex, float(bmi), children, smoker, region]], 
+                              columns=['age', 'sex', 'bmi', 'children', 'smoker', 'region'])
 
-    # Prepare the payload for the API request
-    payload_scoring = {
-        "input_data": [{
-            "fields": ["age", "sex", "bmi", "children", "smoker", "region"],
-            "values": userInput
-        }]
-    }
+    # Preprocess the input data (convert categorical variables to numerical)
+    userInput = pd.get_dummies(userInput, columns=['sex', 'smoker', 'region'], drop_first=True)
 
-    try:
-        # Validate input parameters
-        if not isinstance(age, int) or age < 0:
-            raise ValueError("Age must be a non-negative integer.")
-        if not isinstance(bmi, (int, float)) or bmi <= 0:
-            raise ValueError("BMI must be a positive number.")
-        if not isinstance(children, int) or children < 0:
-            raise ValueError("Number of children must be a non-negative integer.")
-        if sex not in ['Male', 'Female']:
-            raise ValueError("Sex must be 'Male' or 'Female'.")
-        if smoker not in ['Yes', 'No']:
-            raise ValueError("Smoker must be 'Yes' or 'No'.")
-        if region not in ['Northeast', 'Northwest', 'Southeast', 'Southwest', 'North', 'South', 'East', 'West']:
-            raise ValueError("Region must be one of the following: Northeast, Northwest, Southeast, Southwest.")
+    # Ensure the input has the same columns as the training data
+    userInput = userInput.reindex(columns=model.feature_importances_.index, fill_value=0)
 
-        # Make the API request
-        response_scoring = requests.post(
-            f"{api_url}/predictions?version=2020-09-01",
-            json=payload_scoring,
-            headers=header
-        )
+    # Make the prediction
+    predicted_premium = model.predict(userInput)
 
-        # Check if the response is successful
-        response_scoring.raise_for_status()  # Raises an error for bad responses
+    return round(predicted_premium[0], 2)
 
-        # Attempt to parse the response as JSON
-        output = response_scoring.json()
-
-        # Debugging: Print the output to see its structure
-        print("API Response:", json.dumps(output, indent=4))  # Pretty print the JSON response
-
-        # Extract and round the charge value from the response
-        if 'predictions' in output and len(output['predictions']) > 0:
-            ab = output['predictions']
-            if len(ab) > 0 and len(ab[0]['values']) > 0:
-                roundedCharge = round(ab[0]['values'][0][0], 2)
-                return roundedCharge
-            else:
-                raise ValueError("Unexpected response structure: 'values' not found.")
-        else:
-            raise ValueError("Unexpected response structure: 'predictions' not found.")
-
-    except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-        print("Response content:", response_scoring.text)  # Print the response content for debugging
-        return None  # Return None or an appropriate value to indicate failure
-    except ValueError as json_err:
-        print(f"JSON decoding error: {json_err}")
-        print("Response content:", response_scoring.text)  # Print the response content for debugging
-        return None  # Return None or an appropriate value to indicate failure
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        return None  # Return None or an appropriate value to indicate failure
-
-# Streamlit form elements
-st.title("Predictor App")
-
-with st.form(key='prediction_form'):
-    age = st.number_input("Age", min_value=0)
-    sex = st.selectbox("Sex", ["Male", "Female"])
-    bmi = st.number_input("BMI", min_value=0.0)
-    children = st.number_input("Children", min_value=0)
-    smoker = st.selectbox("Smoker", ["Yes", "No"])
-    region = st.selectbox("Region", ["North", "South", "East", "West"])
-    
-    submit_button = st.form_submit_button(label="Submit")
-
-    if submit_button:
-        prediction = get_prediction(age, sex, bmi, children, smoker, region)
-        st.write(f"Predicted Charge: {prediction}")
-
-# Function to load the pre-trained model
 # Function to display the prediction page
 def show_predict_page():
     st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
+
+    # Train the model (or load a pre-trained model)
+    model = train_model()
 
     # Creating form field
     with st.form('form', clear_on_submit=True):
@@ -428,24 +373,19 @@ def show_predict_page():
         predict = st.form_submit_button("Predict Premium")
 
         if predict:
-            # Validate inputs
+            # # Validate input parameters
             try:
-                # Create DataFrame for prediction
-                X = pd.DataFrame([[int(age), sex, float(bmi), int(children), smoker, region]], 
-                                  columns=['age', 'sex', 'bmi', 'children', 'smoker', 'region'])
+                age = int(age)
+                bmi = float(bmi)
+                children = int(children)
 
-                # Load the model and make a prediction
-                model = load_model()
-                premium = model.predict(X)
-
-                # Display the predicted premium
-                st.subheader(f'Predicted Premium: ${premium[0]:.2f}')
+                # Get the prediction
+                predicted_premium = get_prediction(age, sex, bmi, children, smoker, region, model)
+                st.success(f'The predicted insurance premium is: ${predicted_premium}')
             except ValueError as e:
-                st.error(f"Error in input values: {e}")
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+                st.error(f"Input error: {str(e)}")
 
-# Run the prediction page
+# Run the application
 if __name__ == "__main__":
     show_predict_page()
 
