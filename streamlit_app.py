@@ -314,19 +314,23 @@ if st.button("Generate Premium"):
 if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
 
-# Function to train a Random Forest model (if needed)
 # Function to load and preprocess the dataset
 def load_and_train_model():
     # Load the dataset from the provided URL
     url = "https://raw.githubusercontent.com/That-Tech-Geek/Akshara/main/insurance.csv"
     df = pd.read_csv(url)
 
+    # Debugging: Print the first few rows and columns of the DataFrame
+    print("DataFrame Columns:", df.columns)
+    print("First few rows of the DataFrame:")
+    print(df.head())
+
     # Preprocess the data (convert categorical variables to numerical)
     df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
 
     # Define features and target variable
-    X = df.drop('charges', axis=1)  # Assuming 'charges' is the target variable
-    y = df['charges']
+    X = df.drop('expenses', axis=1)  # Use 'expenses' as the target variable
+    y = df['expenses']
 
     # Train the Random Forest model
     model = RandomForestRegressor(n_estimators=100, random_state=42)
@@ -347,9 +351,9 @@ def get_prediction(age, sex, bmi, children, smoker, region, model):
     userInput = userInput.reindex(columns=model.feature_importances_.index, fill_value=0)
 
     # Make the prediction
-    predicted_premium = model.predict(userInput)
+    predicted_expenses = model.predict(userInput)
 
-    return round(predicted_premium[0], 2)
+    return round(predicted_expenses[0], 2)
 
 # Function to display the prediction page
 def show_predict_page():
@@ -372,7 +376,7 @@ def show_predict_page():
         st.markdown(""" <style> div.stButton > button:first-child {background-color:green; width:600px; color:white; margin: 0 auto; display: block;} </style>""", unsafe_allow_html=True)
 
         # Submit button
-        predict = st.form_submit_button("Predict Premium")
+        predict = st.form_submit_button("Predict Expenses")
 
         if predict:
             # Validate input parameters
@@ -382,8 +386,8 @@ def show_predict_page():
                 children = int(children)
 
                 # Get the prediction
-                predicted_premium = get_prediction(age, sex, bmi, children, smoker, region, model)
-                st.success(f'The predicted insurance premium is: ${predicted_premium}')
+                predicted_expenses = get_prediction(age, sex, bmi, children, smoker, region, model)
+                st.success(f'The predicted insurance expenses are: ${predicted_expenses}')
             except ValueError as e:
                 st.error(f"Input error: {str(e)}")
 
