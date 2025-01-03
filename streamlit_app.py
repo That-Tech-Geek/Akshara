@@ -315,16 +315,18 @@ if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
 
 # Function to train a Random Forest model (if needed)
-def train_model():
-    df = pd.read_csv('insurance.csv')  # Load your dataset here
-    df = pd.DataFrame(data)
+# Function to load and preprocess the dataset
+def load_and_train_model():
+    # Load the dataset from the provided URL
+    url = "https://raw.githubusercontent.com/That-Tech-Geek/Akshara/main/insurance.csv"
+    df = pd.read_csv(url)
 
     # Preprocess the data (convert categorical variables to numerical)
     df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
 
     # Define features and target variable
-    X = df.drop('premium', axis=1)
-    y = df['premium']
+    X = df.drop('charges', axis=1)  # Assuming 'charges' is the target variable
+    y = df['charges']
 
     # Train the Random Forest model
     model = RandomForestRegressor(n_estimators=100, random_state=42)
@@ -353,8 +355,8 @@ def get_prediction(age, sex, bmi, children, smoker, region, model):
 def show_predict_page():
     st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
 
-    # Train the model (or load a pre-trained model)
-    model = train_model()
+    # Load and train the model
+    model = load_and_train_model()
 
     # Creating form field
     with st.form('form', clear_on_submit=True):
@@ -373,7 +375,7 @@ def show_predict_page():
         predict = st.form_submit_button("Predict Premium")
 
         if predict:
-            # # Validate input parameters
+            # Validate input parameters
             try:
                 age = int(age)
                 bmi = float(bmi)
