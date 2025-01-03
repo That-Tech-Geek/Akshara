@@ -317,15 +317,13 @@ if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
 
 def get_prediction(age, sex, bmi, children, smoker, region):
+    # Generate IAM token and retrieve ml_instance_id based on provided documentation
     header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + "<IAM-Token-goes-here>"}
 
-    if bmi is None:
-        python_object = []
-    else:
-        python_object = [age, sex, float(bmi), children, smoker, region]
+    # Prepare the input data
+    userInput = [[age, sex, float(bmi), children, smoker, region]]
 
-    userInput = [python_object]
-
+    # Prepare the payload for the API request
     payload_scoring = {
         "input_data": [{
             "fields": ["age", "sex", "bmi", "children", "smoker", "region"],
@@ -333,22 +331,39 @@ def get_prediction(age, sex, bmi, children, smoker, region):
         }]
     }
 
-    response_scoring = requests.post(
-        "https://us-south.ml.cloud.ibm.com/ml/v4/deployments/<deployment-id-goes-here>/predictions?version=2020-09-01",
-        json=payload_scoring, headers=header
-    )
+    try:
+        # Make the API request
+        response_scoring = requests.post(
+            "https://us-south.ml.cloud.ibm.com/ml/v4/deployments/<deployment-id-goes-here>/predictions?version=2020-09-01",
+            json=payload_scoring, headers=header
+        )
 
-    output = json.loads(response_scoring.text)
+        # Check if the response is successful
+        response_scoring.raise_for_status()  # Raises an error for bad responses
 
-    for key in output:
-        ab = output[key]
+        # Parse the response
+        output = response_scoring.json()
 
-    for key in ab[0]:
-        bc = ab[0][key]
+        # Debugging: Print the output to see its structure
+        print("API Response:", output)
 
-    roundedCharge = round(bc[0][0], 2)
+        # Extract and round the charge value from the response
+        if 'predictions' in output and len(output['predictions']) > 0:
+            ab = output['predictions']
+            if len(ab) > 0 and len(ab[0]['values']) > 0:
+                roundedCharge = round(ab[0]['values'][0][0], 2)
+                return roundedCharge
+            else:
+                raise ValueError("Unexpected response structure: 'values' not found.")
+        else:
+            raise ValueError("Unexpected response structure: 'predictions' not found.")
 
-    return roundedCharge
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+        return None  # Return None or an appropriate value to indicate failure
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return None  # Return None or an appropriate value to indicate failure
 
 # Streamlit form elements
 st.title("Predictor App")
