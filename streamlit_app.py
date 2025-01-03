@@ -106,9 +106,6 @@ def ask_cohere(question):
 receiver_email = "sambit1912@gmail.com"
 # Define the send_email function
 def send_email(receiver_email, subject, body):
-    # Setup the server and send the email (example using Gmail)
-    sender_email = "sambit1912@gmail.com"  # Replace with your email
-    password = "noqx vfqm zrhk sggm"  # Replace with your email password or app password
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(sender_email, password)
