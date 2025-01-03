@@ -334,21 +334,27 @@ st.subheader("Insurance Advisory & Localized Claims Support")
 
 # User input for insurance query
 query = st.text_area("Describe your insurance-related query")
+query = st.text_area("Describe your insurance-related query")
 if st.button("Get Advisory"):
     if query:
-        # Here you can implement more complex logic for advisory
-        st.info(f"Advisory based on your query: '{query}' - We recommend reviewing affordable rural policies.")
+        try:
+            # Generate advisory using Cohere's language model
+            response = COHERE_API_KEY.generate(
+                model='xlarge',  # You can choose the model size based on your needs
+                prompt=f"Provide an insurance advisory based on the following query: '{query}'",
+                max_tokens=100,  # Adjust the number of tokens as needed
+                temperature=0.7,  # Adjust the creativity of the response
+                stop_sequences=["\n"]
+            )
+            
+            advisory = response.generations[0].text.strip()  # Get the generated advisory text
+            
+            # Display the advisory
+            st.info(f"Advisory based on your query: '{query}' - {advisory}")
+        except Exception as e:
+            st.error(f"An error occurred while generating the advisory: {str(e)}")
     else:
         st.warning("Please enter a query to get advisory.")
-
-# Policy purchase section
-policy_purchase = st.text_input("Enter Policy Name to Purchase")
-policy_amount = st.number_input("Enter Policy Amount", min_value=0.0, step=1.0)
-if st.button("Request Policy"):
-    if policy_purchase and policy_amount > 0:
-        st.success(f"Policy '{policy_purchase}' purchased successfully for ₹{policy_amount:.2f}!")
-    else:
-        st.warning("Please enter a valid policy name and amount greater than zero.")
 
 # Dynamic Blockchain-Integrated Insurance for Gig & Informal Workers (GigInsure)
 st.header("Dynamic Blockchain-Integrated Insurance for Gig & Informal Workers (GigInsure)")
