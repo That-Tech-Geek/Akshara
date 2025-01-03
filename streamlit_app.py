@@ -285,16 +285,6 @@ if st.button(translate_text("Record Voice", selected_lang)):
     else:
         st.error(translate_text(voice_question, selected_lang))
 
-# Load or initialize risk prediction model
-@st.cache_resource
-def load_risk_model():
-    # A simple linear regression model for risk prediction
-    model = LinearRegression()
-    X = np.array([[1, 2], [2, 4], [3, 6]])
-    y = np.array([100, 200, 300])  # Dummy premium values
-    model.fit(X, y)
-    return model
-
 # Initialize blockchain-like structure
 @st.cache_resource
 def initialize_blockchain():
@@ -327,10 +317,6 @@ if st.button("Create Pool"):
     add_block_to_chain({"pool_name": pool_name, "contribution": pool_contribution})
     st.success("Insurance Pool Created!")
     st.write(blockchain)
-
-# Header for Rural Insurance Hubs
-st.header("Rural Insurance Hubs (RIH)")
-st.subheader("Insurance Advisory & Localized Claims Support")
 
 # User input for insurance query
 query = st.text_area("Describe your insurance-related query")
