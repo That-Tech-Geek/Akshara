@@ -17,6 +17,10 @@ import hashlib
 import datetime
 from transformers import BertTokenizer, BertModel
 import torch
+import numpy as np
+import pandas as pd 
+import pickle
+import streamlit as st
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
@@ -362,6 +366,58 @@ with st.form(key='prediction_form'):
     if submit_button:
         prediction = get_prediction(age, sex, bmi, children, smoker, region)
         st.write(f"Predicted Charge: {prediction}")
+
+
+# Set the layout of the Streamlit app
+st.set_page_config(layout="wide")
+
+# Function to load the pre-trained model
+def load_model():
+    with open('random_forest_regressor_model.pkl', 'rb') as file:
+        model = pickle.load(file)
+    return model
+
+# Function to display the prediction page
+def show_predict_page():
+    st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
+
+    # Creating form field
+    with st.form('form', clear_on_submit=True):
+        age = st.text_input('Age', placeholder='Age')
+        sex = st.selectbox("Sex", ['Male', 'Female'])
+        bmi = st.text_input('BMI', placeholder='BMI')
+        children = st.text_input('Children', placeholder='Number of Children')
+        smoker = st.selectbox('Smoker', ['Yes', 'No'])
+        reg = ['Northeast', 'Northwest', 'Southeast', 'Southwest']
+        region = st.selectbox('Region', reg)
+
+        # Custom button style
+        st.markdown(""" <style> div.stButton > button:first-child {background-color:green; width:600px; color:white; margin: 0 auto; display: block;} </style>""", unsafe_allow_html=True)
+
+        # Submit button
+        predict = st.form_submit_button("Predict Premium")
+
+        if predict:
+            # Validate inputs
+            try:
+                # Create DataFrame for prediction
+                X = pd.DataFrame([[int(age), sex, float(bmi), int(children), smoker, region]], 
+                                  columns=['age', 'sex', 'bmi', 'children', 'smoker', 'region'])
+
+                # Load the model and make a prediction
+                model = load_model()
+                premium = model.predict(X)
+
+                # Display the predicted premium
+                st.subheader(f'Premium: ${premium[0]:.2f}')
+            except ValueError as e:
+                st.error(f"Error in input values: {e}")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+
+# Run the prediction page
+if __name__ == "__main__":
+    show_predict_page()
 
 # Footer
 st.write("# Thank you for using Akshara!")
