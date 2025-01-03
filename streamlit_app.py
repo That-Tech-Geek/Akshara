@@ -337,19 +337,9 @@ query = st.text_area("Describe your insurance-related query")
 if st.button("Get Advisory"):
     if query:
         try:
-            # Generate advisory using Cohere's language model
-            response = COHERE_API_KEY.generate(
-                model='xlarge',  # You can choose the model size based on your needs
-                prompt=f"Provide an insurance advisory based on the following query: '{query}'",
-                max_tokens=1000,  # Adjust the number of tokens as needed
-                temperature=0.7,  # Adjust the creativity of the response
-                stop_sequences=["\n"]
-            )
-            
+            response = ask_cohere(f"Generate an insurance advisory for '{query}'")
             advisory = response.generations[0].text.strip()  # Get the generated advisory text
-            
-            # Display the advisory
-            st.info(f"Advisory based on your query: '{query}' - {advisory}")
+            st.write(translate_text(f" Answer: {advisory.strip()}", selected_lang))
         except Exception as e:
             st.error(f"An error occurred while generating the advisory: {str(e)}")
     else:
