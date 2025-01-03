@@ -17,7 +17,6 @@ import pandas as pd
 import numpy as np
 import hashlib
 import datetime
-import webbrowser
 from sklearn.linear_model import LinearRegression
 import joblib
 from transformers import BertTokenizer, BertModel
@@ -147,10 +146,7 @@ st.write("""
 ### Welcome to Akshara ! 🌸
 Empowering women with tools for financial literacy, secure banking, and entrepreneurship.
 """)
-
-if st.button("Click here to Join the Entrepreneur Army"):
-    webbrowser.open(LINK)
-
+st.markdown(f"[Click here to Join the Entrepreneur Army]({LINK})")
 # Sidebar for Language Selection
 languages = {"English": "en", "Hindi": "hi", "Bengali": "bn", "Telugu": "te", "Marathi": "mr", "Tamil": "ta", "Urdu": "ur", "Gujarati": "gu", "Malayalam": "ml", "Kannada": "kn", "Odia": "or", "Punjabi": "pa", "Assamese": "as", "Maithili": "mai", "Sanskrit": "sa", "Konkani": "kok", "Sindhi": "sd", "Dogri": "doi", "Bodo": "bo", "Manipuri": "mni", "Nepali": "ne", "Santali": "sat", "Kashmiri": "ks", "Maithili": "mai", "Tulu": "tcy", "Khasi": "kha", "Mizo": "lus", "Bengali (Bangla)": "bn", "Gurmukhi": "guru", "Assamese (Asamiya)": "as"}
 lang_choice = st.sidebar.selectbox("Choose Language / भाषा चुनें", list(languages.keys()))
