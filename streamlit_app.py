@@ -67,7 +67,7 @@ def load_risk_model(model_name='bert-base-uncased'):
 def fetch_financial_news():
     params = {
         "apiKey": NEWSAPI_KEY,
-        "category": "business",  # Replace "business" with a valid category supported by the API
+        "category": "business", "in"  # Replace "business" with a valid category supported by the API
         "language": "en",
         "country": "in"
     }
@@ -141,10 +141,10 @@ def play_tts(text, lang):
         st.error(f"TTS Error: {str(e)}")
 
 # App Title and Description
-st.title("Akshara: Financial Empowerment for Rural Women in India")
+st.title("Akshara: Financial Empowerment for Rural India")
 st.write("""
-### Welcome to Akshara ! 🌸
-Empowering women with tools for financial literacy, secure banking, and entrepreneurship.
+# Welcome to Akshara!
+## Empowering Rural India with tools for financial literacy, secure banking, and entrepreneurship.
 """)
 st.markdown(f"[Click here to Join the Entrepreneur Army]({LINK})")
 # Sidebar for Language Selection
@@ -348,4 +348,4 @@ if st.checkbox("Show Blockchain"):
     st.write("Blockchain Data:", blockchain)
 
 # Footer
-st.write("### Thank you for using Akshara! 🌼")
+st.write("# Thank you for using Akshara!")
