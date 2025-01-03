@@ -341,11 +341,11 @@ def get_prediction(age, sex, bmi, children, smoker, region):
         # Check if the response is successful
         response_scoring.raise_for_status()  # Raises an error for bad responses
 
-        # Parse the response
+        # Attempt to parse the response as JSON
         output = response_scoring.json()
 
         # Debugging: Print the output to see its structure
-        print("API Response:", output)
+        print("API Response:", json.dumps(output, indent=4))  # Pretty print the JSON response
 
         # Extract and round the charge value from the response
         if 'predictions' in output and len(output['predictions']) > 0:
@@ -360,6 +360,11 @@ def get_prediction(age, sex, bmi, children, smoker, region):
 
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
+        print("Response content:", response_scoring.text)  # Print the response content for debugging
+        return None  # Return None or an appropriate value to indicate failure
+    except ValueError as json_err:
+        print(f"JSON decoding error: {json_err}")
+        print("Response content:", response_scoring.text)  # Print the response content for debugging
         return None  # Return None or an appropriate value to indicate failure
     except Exception as e:
         print(f"An error occurred: {str(e)}")
