@@ -72,7 +72,7 @@ def ask_cohere(question):
         return f"Error: {e}"
 
 # Email Function
-receiver_email = st.secrets["receiver_email"]
+receiver_email = st.secrets["receiver-email"]
 def send_email(receiver_email, subject, body):
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
