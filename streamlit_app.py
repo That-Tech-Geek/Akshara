@@ -140,6 +140,9 @@ def play_tts(text, lang):
     except Exception as e:
         st.error(f"TTS Error: {str(e)}")
 
+# Set page configuration
+st.set_page_config(page_title="Aksha₹a", page_icon="₹")
+
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural India")
 st.write("""
