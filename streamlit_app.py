@@ -143,8 +143,8 @@ def play_tts(text, lang):
 # App Title and Description
 st.title("Akshara: Financial Empowerment for Rural India")
 st.write("""
-# Welcome to Akshara!
-## Empowering Rural India with tools for financial literacy, secure banking, and entrepreneurship.
+### Welcome to Akshara!
+#### Empowering Rural India with tools for financial literacy, secure banking, and entrepreneurship.
 """)
 
 st.markdown(f"[Click here to Join the Entrepreneur Army]({LINK})")
