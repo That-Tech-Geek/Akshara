@@ -17,3 +17,5 @@ cohere
 joblib
 transformers
 torch
+flask
+urllib3
