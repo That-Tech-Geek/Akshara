@@ -39,11 +39,23 @@ def translate_text(text, target_lang):
         return f"Translation error: {str(e)}"
 
 # Load BERT model for risk assessment
-def load_risk_model(model_name='bert-base-uncased'):
-    tokenizer = BertTokenizer.from_pretrained(model_name)
-    model = BertModel.from_pretrained(model_name)
-    model.eval()
-    return model, tokenizer
+def load_and_train_model():
+    url = "https://raw.githubusercontent.com/That-Tech-Geek/Akshara/main/insurance.csv"
+    df = pd.read_csv(url)
+
+    # Preprocess the data (convert categorical variables to numerical)
+    df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
+
+    # Define features and target variable
+    X = df.drop('expenses', axis=1)
+    y = df['expenses']
+
+    # Train the Random Forest model
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X, y)
+
+    # Return the model and the feature names
+    return model, X.columns.tolist()  # Return the feature names as a list
 
 # Fetch financial news
 def fetch_financial_news():
@@ -351,13 +363,18 @@ def load_and_train_model():
     return model
 
 # Function to get predictions from the model
-def get_prediction(age, sex, bmi, children, smoker, region, model):
+def get_prediction(age, sex, bmi, children, smoker, region, model, feature_names):
+    # Prepare the input data
     userInput = pd.DataFrame([[age, sex, float(bmi), children, smoker, region]], 
                               columns=['age', 'sex', 'bmi', 'children', 'smoker', 'region'])
 
+    # Preprocess the input data (convert categorical variables to numerical)
     userInput = pd.get_dummies(userInput, columns=['sex', 'smoker', 'region'], drop_first=True)
-    userInput = userInput.reindex(columns=model.feature_importances_.index, fill_value=0)
 
+    # Ensure the input has the same columns as the training data
+    userInput = userInput.reindex(columns=feature_names, fill_value=0)
+
+    # Make the prediction
     predicted_expenses = model.predict(userInput)
 
     return round(predicted_expenses[0], 2)
@@ -366,7 +383,7 @@ def get_prediction(age, sex, bmi, children, smoker, region, model):
 def show_predict_page():
     st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
 
-    model = load_and_train_model()
+    model, feature_names = load_and_train_model()  # Unpack the model and feature names
 
     with st.form('form', clear_on_submit=True):
         age = st.text_input('Age', placeholder='Age')
@@ -387,10 +404,10 @@ def show_predict_page():
                 bmi = float(bmi)
                 children = int(children)
 
-                predicted_expenses = get_prediction(age, sex, bmi, children, smoker, region, model)
+                predicted_expenses = get_prediction(age, sex, bmi, children, smoker, region, model, feature_names)
                 st.success(f'The predicted insurance expenses are: ${predicted_expenses}')
             except ValueError as e:
-                st.error (f"Input error: {str(e)}")
+                st.error(f"Input error: {str(e)}")
 
 # Run the application
 if __name__ == "__main__":
