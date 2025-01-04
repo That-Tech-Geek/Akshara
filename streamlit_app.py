@@ -101,11 +101,13 @@ def record_voice_input():
 def play_tts(text, lang):
     try:
         tts = gTTS(text=text, lang=lang)
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".mp3") as tmp_file:
+        # Create a temporary file without auto-deletion
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
             tts.save(tmp_file.name)
-            return tmp_file.name
+            return tmp_file.name  # Return the file name for audio playback
     except Exception as e:
         st.error(f"TTS Error: {str(e)}")
+        return None  # Return None if there was an error
 
 # Set page configuration
 st.set_page_config(page_title="Aksha₹a", page_icon="💵")
@@ -176,7 +178,10 @@ if st.button(translate_text("Start Lesson", selected_lang)):
     translated_lesson_content = translate_text(lesson_content, selected_lang)
     st.write(translated_lesson_content)
     audio_file = play_tts(translated_lesson_content, selected_lang)
-    st.audio(audio_file, format='audio/mp3')
+    if audio_file:  # Check if audio_file is not None
+        st.audio(audio_file, format='audio/mp3')
+else:
+    st.error("Failed to generate audio.")
 
 # Section 2: Goal-Oriented Savings Plans
 st.header(translate_text("💰 Goal-Oriented Savings", selected_lang))
