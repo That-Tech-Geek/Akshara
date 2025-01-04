@@ -40,14 +40,20 @@ def translate_text(text, target_lang):
 
 # Load BERT model for risk assessment
 def load_and_train_model():
+    # Load the dataset from the provided URL
     url = "https://raw.githubusercontent.com/That-Tech-Geek/Akshara/main/insurance.csv"
     df = pd.read_csv(url)
+
+    # Debugging: Print the first few rows and columns of the DataFrame
+    print("DataFrame Columns:", df.columns)
+    print("First few rows of the DataFrame:")
+    print(df.head())
 
     # Preprocess the data (convert categorical variables to numerical)
     df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
 
     # Define features and target variable
-    X = df.drop('expenses', axis=1)
+    X = df.drop('expenses', axis=1)  # Use 'expenses' as the target variable
     y = df['expenses']
 
     # Train the Random Forest model
@@ -383,7 +389,8 @@ def get_prediction(age, sex, bmi, children, smoker, region, model, feature_names
 def show_predict_page():
     st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
 
-    model, feature_names = load_and_train_model()  # Unpack the model and feature names
+    # Load and train the model, unpacking the model and feature names
+    model, feature_names = load_and_train_model()
 
     with st.form('form', clear_on_submit=True):
         age = st.text_input('Age', placeholder='Age')
