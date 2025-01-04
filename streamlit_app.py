@@ -1,8 +1,8 @@
 import streamlit as st
 from gtts import gTTS
 import requests
-import speech_recognition as sr  # For voice input
-from deep_translator import GoogleTranslator  # For translation
+import speech_recognition as sr
+from deep_translator import GoogleTranslator
 import tempfile
 import smtplib
 from email.mime.text import MIMEText
@@ -18,34 +18,34 @@ import datetime
 from transformers import BertTokenizer, BertModel
 import torch
 import pickle
-from sklearn.ensemble import RandomForestRegressor  # Import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
 COHERE_API_KEY = st.secrets["COHERE_API_KEY"]
-sender_email = st.secrets["sender_email"]
-app_password = st.secrets["app_password"]
+SENDER_EMAIL = st.secrets["sender_email"]
+APP_PASSWORD = st.secrets["app_password"]
 NEWSAPI_URL = "https://newsapi.org/v2/top-headlines"
 LINK = st.secrets["LINK"]
+RECEIVER_EMAIL = st.secrets["receiver-email"]
 
 # Function to translate text using deep_translator
 def translate_text(text, target_lang):
     if target_lang == "en":
-        return text  # No translation needed for English
-
+        return text
     try:
-        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
-        return translated
+        return GoogleTranslator(source='auto', target=target_lang).translate(text)
     except Exception as e:
         return f"Translation error: {str(e)}"
 
+# Load BERT model for risk assessment
 def load_risk_model(model_name='bert-base-uncased'):
     tokenizer = BertTokenizer.from_pretrained(model_name)
     model = BertModel.from_pretrained(model_name)
     model.eval()
     return model, tokenizer
 
-# Function to fetch financial news
+# Fetch financial news
 def fetch_financial_news():
     params = {
         "apiKey": NEWSAPI_KEY,
@@ -56,44 +56,40 @@ def fetch_financial_news():
     try:
         response = requests.get(NEWSAPI_URL, params=params)
         response.raise_for_status()
-        news_data = response.json()
-        return news_data.get("articles", [])
+        return response.json().get("articles", [])
     except Exception as e:
-        print(f"Error fetching financial news: {e}")
+        st.error(f"Error fetching financial news: {e}")
         return []
 
-# Define the function to use cohere with Langchain
+# Function to interact with Cohere API
 def ask_cohere(question):
     try:
-        llm = cohere.Client(COHERE_API_KEY)  # Initialize the cohere model
+        llm = cohere.Client(COHERE_API_KEY)
         prompt_template = PromptTemplate(input_variables=["question"], template="{question}")
         chain = LLMChain(llm=llm, prompt=prompt_template)
-        response = chain.run({"question": question})
-        return response
+        return chain.run({"question": question})
     except Exception as e:
         return f"Error: {e}"
 
-# Email Function
-receiver_email = st.secrets["receiver-email"]
+# Send email function
 def send_email(receiver_email, subject, body):
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, app_password)  # Use app_password for login
+            server.login(SENDER_EMAIL, APP_PASSWORD)
             message = f"Subject: {subject}\n\n{body}"
-            server.sendmail(sender_email, receiver_email, message)
-        print("Email sent successfully!")
+            server.sendmail(SENDER_EMAIL, receiver_email, message)
+        st.success("Email sent successfully!")
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        st.error(f"Failed to send email: {e}")
 
-# Function to record voice input and convert to text
+# Record voice input and convert to text
 def record_voice_input():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         st.info("Listening... Please speak now.")
         try:
             audio = recognizer.listen(source, timeout=5)
-            text = recognizer.recognize_google(audio)
-            return text
+            return recognizer.recognize_google(audio)
         except sr.WaitTimeoutError:
             return "Timeout: No input detected."
         except sr.UnknownValueError:
@@ -101,13 +97,13 @@ def record_voice_input():
         except Exception as e:
             return f"Error: {e}"
 
-# Function to play TTS audio in the target language
+# Play TTS audio in the target language
 def play_tts(text, lang):
     try:
         tts = gTTS(text=text, lang=lang)
         with tempfile.NamedTemporaryFile(delete=True, suffix=".mp3") as tmp_file:
             tts.save(tmp_file.name)
-            return tmp_file.name  # Return the file name for audio playback
+            return tmp_file.name
     except Exception as e:
         st.error(f"TTS Error: {str(e)}")
 
@@ -122,10 +118,19 @@ st.write("""
 """)
 
 st.markdown(f"[Click here to Join the Entrepreneur Army]({LINK})")
-st.markdown(f"[Help & Support](https://akshara-nps-tracker.streamlit.app )")
+st.markdown(f"[Help & Support](https://akshara-nps-tracker.streamlit.app)")
 
 # Sidebar for Language Selection
-languages = {"English": "en", "Hindi": "hi", "Bengali": "bn", "Telugu": "te", "Marathi": "mr", "Tamil": "ta", "Urdu": "ur", "Gujarati": "gu", "Malayalam": "ml", "Kannada": "kn", "Odia": "or", "Punjabi": "pa", "Assamese": "as", "Maithili": "mai", "Sanskrit": "sa", "Konkani": "kok", "Sindhi": "sd", "Dogri": "doi", "Bodo": "bo", "Manipuri": "mni", "Nepali": "ne", "Santali": "sat", "Kashmiri": "ks", "Maithili": "mai", "Tulu": "tcy", "Khasi": "kha", "Mizo": "lus", "Bengali (Bangla)": "bn", "Gurmukhi": "guru", "Assamese (Asamiya)": "as"}
+languages = {
+    "English": "en", "Hindi": "hi", "Bengali": "bn", "Telugu": "te", 
+    "Marathi": "mr", "Tamil": "ta", "Urdu": "ur", "Gujarati": "gu", "Malayalam": "ml", 
+    "Kannada": "kn", "Odia": "or", "Punjabi": "pa", "Assamese": "as", 
+    "Maithili": "mai", "Sanskrit": "sa", "Konkani": "kok", "Sindhi": "sd", 
+    "Dogri": "doi", "Bodo": "bo", "Manipuri": "mni", "Nepali": "ne", 
+    "Santali": "sat", "Kashmiri": "ks", "Maithili": "mai", "Tulu": "tcy", 
+    "Khasi": "kha", "Mizo": "lus", "Bengali (Bangla)": "bn", 
+    "Gurmukhi": "guru", "Assamese (Asamiya)": "as"
+}
 lang_choice = st.sidebar.selectbox("Choose Language / भाषा चुनें", list(languages.keys()))
 selected_lang = languages[lang_choice]
 
@@ -133,7 +138,7 @@ selected_lang = languages[lang_choice]
 st.sidebar.header(translate_text("📰 Financial News", selected_lang))
 news_articles = fetch_financial_news()
 if news_articles:
-    for article in news_articles[:5]:  # Display top 5 articles
+    for article in news_articles[:5]:
         title = article.get("title", "No Title")
         url = article.get("url", "#")
         translated_title = translate_text(title, selected_lang)
@@ -144,7 +149,12 @@ else:
 # Section 1: Financial Literacy 
 st.header(translate_text("📚 Financial Literacy Modules", selected_lang))
 
-topics = ["Budgeting Basics", "Micro Investing", "Loan Essentials", "Emergency Funds", "Savings Strategies", "Retirement Planning", "Debt Management", "Insurance Essentials", "Tax Planning", "Building Creditworthiness"]
+topics = [
+    "Budgeting Basics", "Micro Investing", "Loan Essentials", 
+    "Emergency Funds", "Savings Strategies", "Retirement Planning", 
+    "Debt Management", "Insurance Essentials", "Tax Planning", 
+    "Building Creditworthiness"
+]
 topic_choice = st.selectbox(translate_text("Choose a topic", selected_lang), topics)
 
 # Predefined lesson content for each topic
@@ -187,8 +197,8 @@ if st.button(translate_text("Create Savings Plan", selected_lang)):
         )
     else:
         min_required_savings = round(savings_goal_amount / duration, 2)
-        savings_message = translate_text (f"To achieve your goal of '{savings_goal_desc}' in {duration} months, you need to save {savings_goal_amount} INR in total. "
-            f"Your current plan of saving {monthly_savings} INR per month will only result in {total_savings} INR, leaving a gap of {savings_gap} INR.",
+        savings_message = translate_text(
+            f"To achieve your goal of '{savings_goal_desc}' in {duration} months, you need to save {savings_goal_amount} INR in total . Your current plan of saving {monthly_savings} INR per month will only result in {total_savings} INR, leaving a gap of {savings_gap} INR.",
             selected_lang
         )
         savings_message += translate_text(
@@ -210,6 +220,7 @@ if st.button(translate_text("Create Savings Plan", selected_lang)):
     st.audio(audio_file, format='audio/mp3')
     st.write("For any additional questions, reach out to your network of entrepreneurs!")
 
+# EasyLoan Application Section
 st.header(translate_text("EasyLoan Application", selected_lang))
 Name = st.text_input(translate_text("Enter name of borrower", selected_lang))
 Locality = st.text_input(translate_text("Enter place of residence in 'locality, city' format (Example: Hisar, Haryana or Ashok Vihar, Delhi)", selected_lang))
@@ -225,7 +236,7 @@ if st.button(translate_text("Submit Details", selected_lang)):
     body = f"Name: {Name}\nLocality: {Locality}\nLoan Amount: {Loan_Amount}\nReason: {Reason}\n" \
            f"Occupation: {Occupation}\nCollateral: {Collateral}\nMonthly Income: {Monthly_Income}\nPhone Number: {ph_no}"
 
-    send_email(receiver_email, subject, body)
+    send_email(RECEIVER_EMAIL, subject, body)
     st.success(translate_text("Your loan application details have been sent!", selected_lang))
 
 # Section: Ask a Question (Text or Voice)
@@ -264,10 +275,7 @@ def create_block(data, prev_hash="0"):
     return {"data": data, "timestamp": timestamp, "prev_hash": prev_hash, "hash": block_hash}
 
 def add_block_to_chain(data):
-    if len(blockchain) > 0:
-        prev_hash = blockchain[-1]["hash"]
-    else:
-        prev_hash = "0"
+    prev_hash = blockchain[-1]["hash"] if blockchain else "0"
     new_block = create_block(data, prev_hash)
     blockchain.append(new_block)
 
@@ -275,7 +283,7 @@ def add_block_to_chain(data):
 st.title("Innovative Insurance Solutions")
 
 # Blockchain-Powered Community Insurance Pools (BCP)
-st .header("Blockchain-Powered Community Insurance Pools (BCP)")
+st.header("Blockchain-Powered Community Insurance Pools (BCP)")
 pool_name = st.text_input("Enter Insurance Pool Name")
 pool_contribution = st.number_input("Enter Contribution Amount", min_value=0.0, step=1.0)
 if st.button("Create Pool"):
@@ -289,8 +297,8 @@ if st.button("Get Advisory"):
     if query:
         try:
             response = ask_cohere(f"Generate an insurance advisory for '{query}'")
-            advisory = response.generations[0].text.strip()  # Get the generated advisory text
-            st.write(translate_text(f" Answer: {advisory.strip()}", selected_lang))
+            advisory = response.strip()  # Get the generated advisory text
+            st.write(translate_text(f" Answer: {advisory}", selected_lang))
         except Exception as e:
             st.error(f"An error occurred while generating the advisory: {str(e)}")
     else:
@@ -316,7 +324,6 @@ if st.checkbox("Show Blockchain"):
 
 # Function to load and preprocess the dataset
 def load_and_train_model():
-    # Load the dataset from the provided URL
     url = "https://raw.githubusercontent.com/That-Tech-Geek/Akshara/main/insurance.csv"
     df = pd.read_csv(url)
 
@@ -329,7 +336,7 @@ def load_and_train_model():
     df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
 
     # Define features and target variable
-    X = df.drop('expenses', axis=1)  # Use 'expenses' as the target variable
+    X = df.drop('expenses', axis=1)
     y = df['expenses']
 
     # Train the Random Forest model
@@ -340,17 +347,12 @@ def load_and_train_model():
 
 # Function to get predictions from the model
 def get_prediction(age, sex, bmi, children, smoker, region, model):
-    # Prepare the input data
     userInput = pd.DataFrame([[age, sex, float(bmi), children, smoker, region]], 
                               columns=['age', 'sex', 'bmi', 'children', 'smoker', 'region'])
 
-    # Preprocess the input data (convert categorical variables to numerical)
     userInput = pd.get_dummies(userInput, columns=['sex', 'smoker', 'region'], drop_first=True)
-
-    # Ensure the input has the same columns as the training data
     userInput = userInput.reindex(columns=model.feature_importances_.index, fill_value=0)
 
-    # Make the prediction
     predicted_expenses = model.predict(userInput)
 
     return round(predicted_expenses[0], 2)
@@ -359,10 +361,8 @@ def get_prediction(age, sex, bmi, children, smoker, region, model):
 def show_predict_page():
     st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
 
-    # Load and train the model
     model = load_and_train_model()
 
-    # Creating form field
     with st.form('form', clear_on_submit=True):
         age = st.text_input('Age', placeholder='Age')
         sex = st.selectbox("Sex", ['Male', 'Female'])
@@ -372,24 +372,20 @@ def show_predict_page():
         reg = ['Northeast', 'Northwest', 'Southeast', 'Southwest']
         region = st.selectbox('Region', reg)
 
-        # Custom button style
         st.markdown(""" <style> div.stButton > button:first-child {background-color:green; width:600px; color:white; margin: 0 auto; display: block;} </style>""", unsafe_allow_html=True)
 
-        # Submit button
         predict = st.form_submit_button("Predict Expenses")
 
         if predict:
-            # Validate input parameters
             try:
                 age = int(age)
                 bmi = float(bmi)
                 children = int(children)
 
-                # Get the prediction
                 predicted_expenses = get_prediction(age, sex, bmi, children, smoker, region, model)
                 st.success(f'The predicted insurance expenses are: ${predicted_expenses}')
             except ValueError as e:
-                st.error(f"Input error: {str(e)}")
+                st.error (f"Input error: {str(e)}")
 
 # Run the application
 if __name__ == "__main__":
