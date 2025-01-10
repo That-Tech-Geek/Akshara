@@ -19,6 +19,7 @@ from transformers import BertTokenizer, BertModel
 import torch
 import pickle
 from sklearn.ensemble import RandomForestRegressor
+import pandas
 
 # API Keys and URLs
 NEWSAPI_KEY = st.secrets["newsapi_key"]
@@ -40,28 +41,33 @@ def translate_text(text, target_lang):
 
 # Load BERT model for risk assessment
 def load_and_train_model():
-    # Load the dataset from the provided URL
-    url = "https://raw.githubusercontent.com/That-Tech-Geek/Akshara/main/insurance.csv"
-    df = pd.read_csv(url)
+    try:
+        # Load the dataset from the provided URL
+        url = "https://raw.githubusercontent.com/That-Tech-Geek/Akshara/main/insurance.csv"
+        df = pd.read_csv(url)
 
-    # Debugging: Print the first few rows and columns of the DataFrame
-    print("DataFrame Columns:", df.columns)
-    print("First few rows of the DataFrame:")
-    print(df.head())
+        # Debugging: Print the first few rows and columns of the DataFrame
+        st.write("DataFrame Columns:", df.columns.tolist())
+        st.write("First few rows of the DataFrame:")
+        st.write(df.head())
 
-    # Preprocess the data (convert categorical variables to numerical)
-    df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
+        # Preprocess the data (convert categorical variables to numerical)
+        df = pd.get_dummies(df, columns=['sex', 'smoker', 'region'], drop_first=True)
 
-    # Define features and target variable
-    X = df.drop('expenses', axis=1)  # Use 'expenses' as the target variable
-    y = df['expenses']
+        # Define features and target variable
+        X = df.drop('expenses', axis=1)  # Use 'expenses' as the target variable
+        y = df['expenses']
 
-    # Train the Random Forest model
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X, y)
+        # Train the Random Forest model
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model.fit(X, y)
 
-    # Return the model and the feature names
-    return model, X.columns.tolist()  # Return the feature names as a list
+        # Return the model and the feature names
+        return model, X.columns.tolist()  # Return the feature names as a list
+
+    except Exception as e:
+        st.error(f"An error occurred while loading the model: {str(e)}")
+        return None, None  # Return None if there was an error
 
 # Fetch financial news
 def fetch_financial_news():
