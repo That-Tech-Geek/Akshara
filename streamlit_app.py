@@ -392,7 +392,13 @@ def get_prediction(age, sex, bmi, children, smoker, region, model, feature_names
     return round(predicted_expenses[0], 2)
 
 def show_predict_page():
-    
+    # Load and train the model, unpacking the model and feature names
+    model, feature_names = load_and_train_model()
+
+    if model is None:
+        st.error("Model could not be loaded. Please check the logs.")
+        return
+
     with st.form('form', clear_on_submit=True):
         age = st.text_input('Age', placeholder='Age')
         sex = st.selectbox("Sex", ['Male', 'Female'])
@@ -401,8 +407,6 @@ def show_predict_page():
         smoker = st.selectbox('Smoker', ['Yes', 'No'])
         reg = ['Northeast', 'Northwest', 'Southeast', 'Southwest']
         region = st.selectbox('Region', reg)
-
-        st.markdown(""" <style> div.stButton > button:first-child {background-color:green; width:600px; color:white; margin: 0 auto; display: block;} </style>""", unsafe_allow_html=True)
 
         predict = st.form_submit_button("Predict Expenses")
 
