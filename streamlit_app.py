@@ -385,8 +385,9 @@ def get_prediction(age, sex, bmi, children, smoker, region, model, feature_names
 
     return round(predicted_expenses[0], 2)
 
-# Function to display the prediction page
 def show_predict_page():
+    st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
+
     # Load and train the model, unpacking the model and feature names
     model, feature_names = load_and_train_model()
 
