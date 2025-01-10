@@ -145,6 +145,7 @@ st.write("""
 
 st.markdown(f"[Click here to Join the Entrepreneur Army]({LINK})")
 st.markdown(f"[Help & Support](https://akshara-nps-tracker.streamlit.app)")
+st.write(f"Learning Modules are in design, and the Insurance Charge Predictor is currently in development, and hence will not be functional now. You will be updated when it is online.")
 
 # Sidebar for Language Selection
 languages = {
@@ -392,13 +393,7 @@ def get_prediction(age, sex, bmi, children, smoker, region, model, feature_names
     return round(predicted_expenses[0], 2)
 
 def show_predict_page():
-    # Load and train the model, unpacking the model and feature names
-    model, feature_names = load_and_train_model()
-
-    if model is None:
-        st.error("Model could not be loaded. Please check the logs.")
-        return
-
+    
     with st.form('form', clear_on_submit=True):
         age = st.text_input('Age', placeholder='Age')
         sex = st.selectbox("Sex", ['Male', 'Female'])
