@@ -387,8 +387,6 @@ def get_prediction(age, sex, bmi, children, smoker, region, model, feature_names
 
 # Function to display the prediction page
 def show_predict_page():
-    st.markdown(f'''<h1 style="color:black;font-size:35px; text-align:center;">{"Welcome To Insurance Premium Predictor"}</h1>''', unsafe_allow_html=True)
-
     # Load and train the model, unpacking the model and feature names
     model, feature_names = load_and_train_model()
 
@@ -407,14 +405,22 @@ def show_predict_page():
 
         if predict:
             try:
+                # Validate inputs
+                if not age or not bmi or not children:
+                    st.error("Please fill in all fields.")
+                    return
+
                 age = int(age)
                 bmi = float(bmi)
                 children = int(children)
 
+                # Ensure the inputs are in the expected format for the model
                 predicted_expenses = get_prediction(age, sex, bmi, children, smoker, region, model, feature_names)
-                st.success(f'The predicted insurance expenses are: ${predicted_expenses}')
+                st.success(f'The predicted insurance expenses are: ${predicted_expenses:.2f}')
             except ValueError as e:
                 st.error(f"Input error: {str(e)}")
+            except Exception as e:
+                st.error(f"An error occurred: {str(e)}")
 
 # Run the application
 if __name__ == "__main__":
